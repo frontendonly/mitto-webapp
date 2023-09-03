@@ -1,0 +1,46 @@
+{
+   "cli": {
+      "packageManager": "npm"
+   },
+   "projects": {
+      "mitto": {
+         "sourceRoot": "src",
+         "prefix": "app",
+         "output": {
+            "folder": "dist/",
+            "view": "index.html",
+            "styles": [
+               "src/styles.scss"
+            ],
+            "entryFile": "main.js",
+            "copy": [
+               {
+                  "src": "src/assets/",
+                  "dest": "dist/assets/"
+               }
+            ]
+         },
+         "resolve": {},
+         "type": "application",
+         "styling": "scss",
+         "configurations": {
+            "production": {
+               "buildOptions": {
+                  "replace": {
+                     "src/environments/env.js": "src/environments/env.prod.js"
+                  }
+               }
+            },
+            "serve": {
+               "serverOptions": {
+                  "port": 4110
+               }
+            }
+         }
+      }
+   },
+   "resolve": {
+      "alias": {}
+   },
+   "default": "mitto"
+}

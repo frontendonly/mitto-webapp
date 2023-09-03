@@ -1,0 +1,30 @@
+{
+  "name": "mitto",
+  "version": "1.0.0",
+  "description": "FlirtZone application",
+  "private": true,
+  "scripts": {
+    "test": "jeli test",
+    "docs": "jeli docs",
+    "serve": "jeli serve",
+    "build": "jeli build"
+  },
+  "author": "Bezynet INC",
+  "license": "MIT",
+  "dependencies": {
+    "@jeli/cli": "1.0.0",
+    "@jeli/core": "1.0.0",
+    "@jeli/router": "1.0.0"
+  },
+  "devDependencies": {
+    "@jeli/dev-cli": "1.0.0",
+    "@jeli/compiler-cli": "1.0.0",
+    "jest": "^25.4.0",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1"
+  }
+}
