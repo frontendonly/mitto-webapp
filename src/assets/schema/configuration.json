@@ -1,0 +1,59 @@
+[{
+    "config": {
+        "loginInfo": {},
+        "signedIn": false,
+        "userData": {},
+        "lastLoginTime": null
+    },
+    "accessToken": {},
+    "pushNotification": {},
+    "restrictions": {
+        "search": {},
+        "login": {},
+        "services": {
+            "likes": {
+                "count": 0,
+                "limit": 40
+            },
+            "messages": {
+                "count": 0,
+                "limit": 20
+            }
+        },
+        "myPrivacy": {
+            "hiddenMessages": [],
+            "hiddenUsers": []
+        }
+    },
+    "fixer": {},
+    "coinsPurchase": [{
+        "value": 100,
+        "amount": 1.99
+    }, {
+        "value": 300,
+        "amount": 4.99
+    }, {
+        "value": 500,
+        "amount": 8.99
+    }, {
+        "value": 1000,
+        "amount": 16.99
+    }],
+    "packages": [{
+        "limit": "3 days",
+        "save": 4.99,
+        "amount": 1.99
+    }, {
+        "limit": "7 days",
+        "save": 19.99,
+        "amount": 4.99
+    }, {
+        "limit": "30 days",
+        "save": 49.99,
+        "amount": 19.99
+    }, {
+        "limit": "1 year",
+        "save": 99.99,
+        "amount": 49.99
+    }]
+}]

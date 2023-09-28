@@ -1,0 +1,13 @@
+<activity-nav-bar page-title="Blocked users"></activity-nav-bar>
+<div class="page-content clearfix">
+  <ul class="collection no-border">
+    <li class="pam uiCenterError" *if="!(userInfo.blockedUser || []).length"><span class="mediumFont"> You have no blocked users.</span></li>
+    <li class="collection-item avatar" *for="(idx,item) in blockedUsers">
+      <img dimension="70x70" :imgResolver="item.image" class="circle" />
+      <p class="title">${:item.name}</p>
+      <div class="secondary-content">
+        <button class="btn btnsubmit waves-effect waves-light" @click="unBlockUser(idx, item.uid)">Unblock</button>
+      </div>
+    </li>
+  </ul>
+</div>

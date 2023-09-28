@@ -1,0 +1,45 @@
+<div class="container vh-100 d-flex justify-content-center align-items-center">
+  <div class="col-10 col-md-6 col-lg-5 col-xxl-4 mx-auto ">
+    <j-fragment {template}="stateManager.current" *if="!alreadyLoggedIn; else as alreadyLoggedInTmpl"></j-fragment>
+  </div>
+</div>
+
+<j-template #normal>
+  <h3 class="h3 mb-3 font-weight-normal text-center">Login</h3>
+  <fo-login @onLoginEvent="onLoginEvent($event)"></fo-login>
+  <div class="mt-2 m-b text-center">Don't have an account?<a @click="stateManager.set('register')"
+      class="btn btn-link">Register here</a>
+  </div>
+  <div class="text-center mt-2 mb-2">
+    <a class="btn btn-link" @click="stateManager.set('reset')">Forgot password?</a>
+  </div>
+  <fo-open-id @onOpenIdLogin="onLoginEvent($event)" {openIds}></fo-open-id>
+</j-template>
+
+<j-template #register>
+  <h3 class="h3 mb-3 font-weight-normal text-center">Register</h3>
+  <fo-auth-register @onAuthRegister="loadInfoAndNavigate($event)"  buttonText="Next"></fo-auth-register>
+  <div class="mt-2 m-b text-center">Have an account? 
+    <a @click="stateManager.set('normal')" class="btn btn-link"> Login here</a>
+  </div>
+</j-template>
+
+<j-template #reset>
+  <h3 class="h3 text-center mb-4">Reset Password</h3>
+  <fo-reset-password @onLoginEvent="onLoginEvent($event)" {queryField}="{}"></fo-reset-password>
+  <div class="text-center mb-3 mt-3">
+    <a class="btn btn-link"  @click="stateManager.set('normal')">Back to login</a>
+  </div>
+</j-template>
+
+
+<j-template #password>
+  <h3 class="h3 text-center mb-4">Reset Password</h3>
+  <fo-new-password {hardReset} {userId}="foTokenService.userId"
+    @onPasswordUpdate="onPasswordUpdate($event)"></fo-new-password>
+</j-template>
+
+<j-template #alreadyLoggedInTmpl>
+  <h5 class="text-center">Continue as <span class="blue-text" @click="login()">${:previousLoggedUserInfo.name}</span></h5>
+  <button @click="switchAccount()" type="button" class="btn btn-primary">Switch Account</h6>
+</j-template>

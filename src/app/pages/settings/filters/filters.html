@@ -1,0 +1,46 @@
+<activity-nav-bar pageTitle="Filters" @onClose="saveSettings()"></activity-nav-bar>
+<div class="bnPlayMaker p-3 clearfix" {:formControl}="filterForm">
+  <div class="section mb-4">
+    <fo-radio-button name="style" label="Preferred Style:">
+      <radio-item *for="opt of appConfig.styles" {value}="opt" {id}="opt" {label}="opt"></radio-item>
+    </fo-radio-button>
+  </div>
+
+  <div class="section" :formControlName="searchFilter">
+    <div class="mb-3">
+      <fo-radio-button label="Interested in:" name="interested">
+        <radio-item {value}="gen" {id}="gen" *for="gen of appConfig.genders" {iconClass}="'bi bi-gender-'+gen" {label}="gen|uppercase"></radio-item>
+      </fo-radio-button>
+    </div>
+
+    <div class="section">
+      <div class="mb-3">
+        <fo-check-box id="onlineUsers" name="onlineUsers">
+          <span class="text-black">Show online users only</span>
+        </fo-check-box>
+      </div>
+      <div class="divider"></div>
+      <div class="mb-3">
+        <fo-check-box id="hasProfilePic" name="hasProfilePic">
+          <span class="text-black">Show users with profile pic only</span>
+        </fo-check-box>
+      </div>
+      <div class="divider"></div>
+      <div class="row mb-3">
+        <div class="col">
+          <label for="minAgeRange">Min age: ${filterForm.value.searchFilter.minAge}</label>
+          <input type="range" class="form-range" id="minAgeRange" :formField="minAge" min="18" max="80" />
+        </div>
+        <div class="col">
+          <label for="maxAgeRange">Max age: ${filterForm.value.searchFilter.maxAge}</label>
+          <input type="range" class="form-range" id="maxAgeRange" :formField="maxAge" min="18" max="80" />
+        </div>
+      </div>
+      <div class="divider"></div>
+        <div class="mb-3">
+          <label for="maxKmRange">Show users within: ${filterForm.value.searchFilter.maxKm}km</label>
+          <input type="range" class="form-range" id="maxKmRange" :formField="maxKm" min="0" max="115" />
+        </div>
+    </div>
+  </div>
+</div>

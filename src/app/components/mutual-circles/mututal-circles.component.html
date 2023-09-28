@@ -1,0 +1,27 @@
+<div class="section" *if="previewCircles">
+  <div class="divider"></div>
+  <div class="row">
+    <div class="col s12 mtm"><i class="fa fa-lg  fa-stop"></i> Circles</div>
+    <div class="col s12" :show="!circles.length && !isLoading">
+      <div class="card-panel teal lighten-2">
+        <span class="white-text">No Match in circles.</span>
+      </div>
+    </div>
+    <div :hide="!isLoading" class="center-align">
+      <div class="fa fa-spin fa-circle-o-notch fa-2x teal-text"></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col s3 m2" *for="circle in circles">
+      <img dimension="70x70" fallback="true" {gender}="circle.info.gender" {:img-resolver}="circle.info.profileImage" klass="circle">
+      <div class="center-align fwb truncate">${circle.info.name}</div>
+    </div>
+  </div>
+
+
+  <div class="row" *if="!user.privacy.circles">
+    <div class="col s12">
+      <div class="card-panel teal lighten-2 white-text">This user privacy settings doesn't allow you to see their circles.</div>
+    </div>
+  </div>
+</div>

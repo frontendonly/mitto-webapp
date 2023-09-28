@@ -1,0 +1,44 @@
+<activity-nav-bar {page-title}="chatContainerInfo.receiver.name"></activity-nav-bar>
+<div class="page-content clearfix chatContentHolder">
+  <div class="chatBoxContainer cabk ptm" style="min-height:90vh">
+    <ul class="uiChatBoxHolder" #chat-container :chat-container {chat-info}="chatContainerInfo" {restructure-view} {post-data} @on-message-loaded="onMessageLoaded($event)">
+      <li class="pam uiCenterError" *if="!noConvo"><span class="mediumFont"> Start a conversation!! </span></li>
+    </ul>
+  </div>
+</div>
+<div class="useFooterText chatFooterBorder" id="_bottomContent">
+  <div class="row no-mgn pas">
+    <div class="col s1" style="padding:0" @click="openMenu()">
+      <span class="">
+        <button type="button" class="uiButtonPlacer black-text">
+          <span class="fa fa-plus fa-lg"></span>
+      </button>
+      </span>
+    </div>
+    <div class="col s10">
+      <div class="commentContainer">
+        <div class="authorTnput">
+          <div class="wrap">
+            <textarea class="textinput Textgrowth Tinput uiBottomTextarea" {:chat-text-area}="textAreaControl" {restructure-view} wrap="on" placeholder="" autocomplete="off"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col s1" @click="send()">
+      <span class="ui-attach-button">
+          <button type="button" class="uiButtonPlacer black-text"><i class="fa fa-paper-plane fa-lg"></i></button>
+      </span>
+    </div>
+  </div>
+  <div class="sticker-container" :show="containerIsOpen">
+    <div class="row pam sticker-menu mbn">
+      <div class="col s3" @click="menuOptions.isSmiley=!menuOptions.isSmiley"><span class="fa fa-smile fa-lg grey-text"></span></div>
+      <div class="col s3" @click="attachment('CAMERA')"><span class="fa fa-camera fa-lg black-text"></span></div>
+      <div class="col s3" @click="attachment('SAVEDPHOTOALBUM')"><span class="fa fa-image fa-lg black-text"></span></div>
+      <div class="col s3" @click="openMap()"><span class="fa fa-map-marker-alt fa-lg black-text"></span></div>
+    </div>
+    <div class="sticker-content">
+      <chat-icons @on-icon-selected="selectIcon($event)"></chat-icons>
+    </div>
+  </div>
+</div>

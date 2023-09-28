@@ -1,2 +1,4 @@
-<h1>Welcome ${appName},</h1>
-<h2>Application works!!</h2>
+<router-intent-container></router-intent-container>
+<router-view ref="content"></router-view>
+<mitto-splash-screen *if="!appInitialized"></mitto-splash-screen>
+<fo-spinner *if="isLoading"></fo-spinner>

@@ -1,0 +1,20 @@
+{
+    "notifMessage": {},
+    "flirtSettings": {
+        "privacy": {
+            "circles": false,
+            "mobile": false,
+            "pm": false,
+            "blurimage": true,
+            "available": true
+        }
+    },
+    "styles": {
+        "0": "Traditional",
+        "1": "Polite",
+        "2": "Playful",
+        "3": "Physical",
+        "4": "Sincere"
+    },
+    "appName": "Mitto"
+}

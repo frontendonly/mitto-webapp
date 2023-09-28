@@ -1,0 +1,6 @@
+<div class="onoffswitch ${:addClass}">
+  <input type="checkbox" name="${:id}" class="onoffswitch-checkbox" id="_${:id}" value="${value?value:1}" :checked="value">
+  <label class="onoffswitch-label" for="_${:id}"><div class="onoffswitch-inner"><div class="onoffswitch-active">
+    <div class="onoffswitch-switch">${:switchValActive}</div></div><div class="onoffswitch-inactive">
+    <div class="onoffswitch-switch">${:switchValInactive}</div></div> </div></label>
+</div>

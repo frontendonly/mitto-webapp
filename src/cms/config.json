@@ -1,0 +1,392 @@
+{
+	"homeJSONMenu": {
+		"menu": [{
+			"element" : "ul",
+			"attr" : {
+				"class":"uiMenu",
+				"j-if":"vm.isAuthenticated()"
+			},
+			"children" : [{
+				"element" : "li",
+				"attr" : {},
+				"children" : [{
+					"element" : "a",
+					"attr": {
+						"j-view-activity": "",
+						"data-title": "Messages",
+						"data-page" : "messages",
+						"id": "_MessagePage"
+					},
+					"children" : [{
+						"element" : "div",
+						"attr" : {
+							"class" : "rfloat"
+						},
+						"children" : [{
+							"element" : "span",
+							"attr" : {
+								"class" : ""
+							}
+						}]
+					},{
+							"element" : "span",
+							"attr" : {
+								"class" : "fa fa-envelope mrs"
+							}
+					},{
+						"element" : "span",
+						"text" : "Messages"
+					}]
+				}]
+			},{
+				"element" : "li",
+				"attr" : {},
+				"children" : [{
+					"element" : "a",
+					"attr": {
+						"j-view-activity": "",
+						"data-title": "Notifications",
+						"data-page": "notification",
+						"id": "_NotificationPage"
+					},
+					"children" : [{
+						"element" : "div",
+						"attr" : {
+							"class" : "rfloat"
+						},
+						"children" : [{
+							"element" : "span",
+							"attr" : {
+								"class" : ""
+							}
+						}]
+					},{
+							"element" : "span",
+							"attr" : {
+								"class" : "fa fa-bell mrs"
+							}
+					},{
+						"element" : "span",
+						"text" : "Notifications"
+					}]
+				}]
+			},{
+				"element" : "li",
+				"attr" : {},
+				"children" : [{
+					"element" : "a",
+					"attr": {
+						"j-view-activity": "",
+						"data-page": "forumpage",
+						"id": "_ForumPage"
+					},
+					"children" : [{
+							"element" : "span",
+							"attr" : {
+								"class" : "fa fa-list-alt mrs"
+							}
+					},{
+						"element" : "span",
+						"text" : "Forum"
+					}]
+				}]
+			},{
+				"element" : "li",
+				"attr" : {},
+				"children" : [{
+					"element" : "a",
+					"attr": {
+						"j-view-activity": "",
+						"data-title": "Groups",
+						"data-page": "grouppage",
+						"id": "_GroupPage"
+					},
+					"children" : [{
+						"element" : "div",
+						"attr" : {
+							"class" : "rfloat"
+						},
+						"children" : [{
+							"element" : "span",
+							"attr" : {
+								"class" : ""
+							}
+						}]
+					},{
+							"element" : "span",
+							"attr" : {
+								"class" : "fa fa-users mrs"
+							}
+					},{
+						"element" : "span",
+						"text" : "Groups"
+					}]
+				}]
+			},{
+				"element" : "li",
+				"attr" : {},
+				"children" : [{
+					"element" : "a",
+					"attr": {
+						"data-title": "Pages",
+						"data-page": "bezypages",
+						"id": "_BezyPages",
+						"j-view-activity": ""
+					},
+					"children" : [{
+						"element" : "div",
+						"attr" : {
+							"class" : "rfloat"
+						},
+						"children" : [{
+							"element" : "span",
+							"attr" : {
+								"class" : ""
+							}
+						}]
+					},{
+							"element" : "span",
+							"attr" : {
+								"class" : "fa fa-newspaper-o mrs"
+							}
+					},{
+						"element" : "span",
+						"text" : "Pages"
+					}]
+				}]
+			},{
+				"element" : "li",
+				"attr" : {},
+				"children" : [{
+					"element" : "a",
+					"attr": {
+						"j-view-activity": "",
+						"data-title": "Subscriptions",
+						"data-page": "bezysubscribe",
+						"id": "_BezySubscribes"
+					},
+					"children" : [{
+						"element" : "div",
+						"attr" : {
+							"class" : "rfloat"
+						},
+						"children" : [{
+							"element" : "span",
+							"attr" : {
+								"class" : ""
+							}
+						}]
+					},{
+							"element" : "span",
+							"attr" : {
+								"class" : "fa fa-rss-square mrs"
+							}
+					},{
+						"element" : "span",
+						"text" : "Subscribers"
+					}]
+				}]
+			},{
+				"element" : "li",
+				"attr" : {},
+				"children" : [{
+					"element" : "a",
+					"attr": {
+						"j-click":"vm.logout()"
+					},
+					"children" : [{
+						"element" : "span",
+						"attr" : {
+							"class" : "fa fa-sign-out fa-fw"
+						}
+					},{
+						"element" : "span",
+						"text" : "Log-out"
+					}]
+				}]
+			}]
+		},{
+			"element" : "ul",
+			"attr" : {
+				"class":"uiMenu",
+				"j-if":"!vm.isAuthenticated()"
+			},
+			"children" : [{
+				"element" : "li",
+				"attr" : {},
+				"children" : [{
+					"element" : "a",
+					"attr": {
+						"j-open-activity":"register"
+					},
+					"children" : [{
+						"element" : "span",
+						"attr" : {
+							"class" : "fa fa-plus-square fa-fw"
+						}
+					},{
+						"element" : "span",
+						"text" : "Sign-up"
+					}]
+				}]
+			}]
+		}]
+	},
+	"notifMessage": {
+		"accept": "Accepted your friend request",
+		"profile": "Viewed your profile",
+		"comment": "Commented on your stream",
+		"like_stream": "Likes your Stream",
+		"like_note": "Likes your Note",
+		"comment_like": "Commented on your foto  album"
+	},
+	"pageSettings": {
+		"items": [{
+			"title": "Edit Info",
+			"class": "pencil",
+			"type": "edprof"
+		}, {
+			"title": "Page Likes",
+			"class": "thumbs-up",
+			"type": "plikes"
+		}, {
+			"title": "View Statistics",
+			"class": "",
+			"type": "statistics"
+		}, {
+			"title": "Display Image",
+			"class": "image",
+			"type": "dspimg"
+		}, {
+			"title": "Cover Image",
+			"class": "image",
+			"type": "covimg"
+		}]
+	},
+	"editProfile": {
+		"items": [{
+			"title": "Location",
+			"class": "map-marker",
+			"type": "location"
+		}, {
+			"title": "Basic Information",
+			"class": "pencil",
+			"type": "basic"
+		}, {
+			"title": "College Information",
+			"class": "graduation-cap",
+			"type": "college"
+		}, {
+			"title": "High-Skool Information",
+			"class": "graduation-cap",
+			"type": "highskool"
+		}, {
+			"title": "Work History",
+			"class": "institution",
+			"type": "company"
+		}, {
+			"title": "Change Display Picture",
+			"class": "image",
+			"type": "profilepic"
+		}, {
+			"title": "Change Timeline Cover",
+			"class": "image",
+			"type": "timecover"
+		}]
+	},
+	"homeMainMenu" : {
+		"default" : [
+			{
+	        	"element" : "tr",
+	        	"children" : [{
+	        		"element" : "td",
+	        		"children" : [{
+	        			"element" : "a",
+	        			"attr" : {
+	        				"j-view-activity" : "statusPage"
+	        			},
+	    				"children" : [{
+	    					"element":"div",
+	    					"children":[{
+	    						"element" : "span",
+	    						"attr" : {
+	    							"class" : "hNK hNewStatus"
+	    						}
+	    					}]
+	    				}]
+	        		}]
+	        	},
+	        	{
+	        		"element" : "td",
+	        		"children" : [{
+	        			"element" : "a",
+	        			"attr" : {
+	        				"j-view-activity" : "photos"
+	        			},
+	    				"children" : [{
+	    					"element":"div",
+	    					"children":[{
+	    						"element" : "span",
+	    						"attr" : {
+	    							"class" : "hNK hNewFoto"
+	    						}
+	    					}]
+	    				}]
+	        		}]
+	        	},
+	        	{
+	        		"element" : "td",
+	        		"children" : [{
+	        			"element" : "a",
+	        			"attr" : {
+	        				"j-view-activity" : "checkInPage"
+	        			},
+	    				"children" : [{
+	    					"element":"div",
+	    					"children":[{
+	    						"element" : "span",
+	    						"attr" : {
+	    							"class" : "hNK hNewLoc"
+	    						}
+	    					}]
+	    				}]
+	        		}]
+	        	},
+	        	{
+	        		"element" : "td",
+	        		"children" : [{
+	        			"element" : "a",
+	        			"attr" : {
+	        				"rel" : "toggle",
+	        				"holder" : "#_uiExtraMenu"
+	        			},
+	    				"children" : [{
+	    					"element":"div",
+	    					"children":[{
+	    						"element" : "span",
+	    						"attr" : {
+	    							"class" : "hNK hMoreMenu"
+	    						}
+	    					}]
+	    				}]
+	        		}]
+	        	}]
+	        }],
+		"extra" : []
+	},
+	"flirtSettings": {
+		"privacy": {
+			"circles": false,
+			"mobile": false,
+			"pm": false,
+			"blurimage": true,
+			"available": true
+		}
+	},
+	"OpenidURL": [
+		"http://bezynet.com/openid/?login=yahoo",
+		"https://accounts.google.com/o/oauth2/auth?response_type=code&redirect_uri=h…apis.com%2Fauth%2Fuserinfo.email&access_type=offline&approval_prompt=force",
+		"http://bezynet.com/openid/index.php?outlook=true"
+	],
+	"appName": "Flirt Zone"
+}

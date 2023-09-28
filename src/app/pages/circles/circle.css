@@ -1,0 +1,11 @@
+.circle {
+    width: 100px;
+    height: 100px;
+    display: block;
+    background: #90CAF9;
+    text-align: center;
+}
+
+.circle .no-image {
+    font-size: 7em;
+}

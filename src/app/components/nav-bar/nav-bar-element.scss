@@ -1,0 +1,75 @@
+.ui-PageMenuContainer {
+    position: fixed;
+    border-right: 1px solid #f2f2f2;
+    background: rgba(255, 255, 255, 1);
+    width: 100%;
+    z-index: 1;
+    top: 0;
+    height: 100%;
+    transition: all 0.5s ease 0s;
+    -webkit-transition: all 0.5s ease 0s;
+    -moz-transition: all 0.5s ease 0s;
+    -o-transition: all 0.5s ease 0s;
+    padding-top: 10vh;
+    display: block;
+    transform: translateX(-105%);
+}
+
+.is-open { 
+    transform: translateX(0%);
+} 
+.is-open:before { 
+    right:-101
+} 
+
+.bottomMenu{ 
+    position:absolute;bottom: 0px; 
+}
+
+@media only screen and (min-width :1224px) {
+    .ui-PageMenuContainer {
+        display: block;
+        position: fixed;
+        top: 0;
+        height: 100%;
+        width: 20%;
+        left: 0;
+        text-align: left
+    }
+}
+
+@media only screen and (min-device-width :768px) and (max-device-width :1024px) {
+    .ui-PageMenuContainer {
+        text-align: left;
+        display: block;
+        position: fixed;
+        top: 0;
+        height: 100%;
+        width: 30%;
+        left: 0
+    }
+}
+
+@media only screen and (min-device-width :768px) and (max-device-width :1024px) and (orientation :landscape) {
+    .ui-PageMenuContainer {
+        display: block;
+        position: fixed;
+        top: 0;
+        height: 100%;
+        width: 30%;
+        left: 0;
+        text-align: left
+    }
+}
+
+@media only screen and (min-device-width :768px) and (max-device-width :1024px) and (orientation :portrait) {
+    .ui-PageMenuContainer {
+        display: block;
+        position: fixed;
+        top: 0;
+        height: 100%;
+        width: 30%;
+        left: 0;
+        text-align: left
+    }
+}

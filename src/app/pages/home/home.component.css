@@ -1,0 +1,15 @@
+.slider-scroll .card-content {
+    position: absolute;
+    bottom: 0px;
+    background: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    opacity: 1;
+}
+
+.home span.no-image {
+    font-size: 14em;
+}
+
+.home {
+    border-top: 3px solid rgb(33, 150, 243);
+}

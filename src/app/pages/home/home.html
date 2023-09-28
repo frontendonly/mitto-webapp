@@ -1,0 +1,51 @@
+<mitto-nav-bar {userInfo}="myInfo" {isAuthenticated}="foAuthService.userIsActive"></mitto-nav-bar>
+<!-- :swipe-registry @on-swipe-event="onSwipeRegistry($event)" -->
+<j-fragment *if="!accountPaused; else as accountPausedTemplate">
+  <div class="clearfix home">
+    <div *for="(idx, group) of peopleNearBy">
+      <div class="p-2 text-blue">${:range[idx]}Km</div>
+      <div class="slider-scroll">
+        <div class="group-list row" {style}="{'width':calculateGridWidth(group.length)}">
+          <div class="col s12 m6" *for="user of group">
+            <div class="card small no-mgn">
+              <div class="card-image" :openIntent="profile" {params}="user.inf" {:imgResolver}="user.inf.profileImage"
+                setAsBackground="true">
+              </div>
+              <div class="card-content" *if="!user.isMe">
+                <span class="card-title activator white-text text-darken-4 truncate">${:user.inf.name} <span
+                    *if="user.inf.privacy.age">, ${CalculateAge(user.inf.age, user.inf.date)}</span>
+                  <span class="right" *if="user.inf.privacy.pm">
+                    <a class="white-text" @click="openChatBox(user.inf)"><i class="fa fa-envelope fa-lg"></i></a>
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <h6 *if="!group.length" class="center">No users within this range.</h6>
+        </div>
+      </div>
+    </div>
+    <div *if="!isLoading && !peopleNearBy.length" class="d-flex bnPlayMaker align-items-center justify-content-center">
+      <h6 class="text-center alert alert-info">No users found please change filter. </h6>
+    </div>
+  </div>
+</j-fragment>
+<nav class="navbar fixed-bottom">
+  <div class="w-100">
+    <div class="row sticker-menu fs-3">
+      <div class="col text-center"><span class="bi bi-house-door-fill"></span></div>
+      <div class="col text-center" :openIntent="message:myInfo"><span class="bi bi-chat-dots"></span><span *if="notif.message"
+          class="bottomBadge">${notif.message}</span></div>
+      <div class="col text-center" :openIntent="match"><span class="bi bi-people-fill"></span><span *if="notif.match"
+          class="bottomBadge">${notif.match}</span></div>
+      <div class="col text-center" :openIntent="profile:{'isMe':true}"><span class="bi bi-person-circle"></span></div>
+    </div>
+  </div>
+</nav>
+
+<j-template #accountPausedTemplate>
+  <div class="vh-100 top-0 position-fixed w-100 align-items-center justify-content-center">
+    <h5 class="text-danger">Account Paused</h5>
+    <button class="btn btn-primary" type="button" @click="enableAccount()"> Enable Account </button>
+  </div>
+</j-template>

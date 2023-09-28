@@ -1,0 +1,59 @@
+<activity-nav-bar page-title="" class="profile-header">
+  <j-template #right-content data-is-me data-is-blocked-user data-open-user-menu>
+    <a *if="!isMe && !isBlockedUser" @click="openUserMenu()"><span class="fa fa-ellipsis-v fa-lg"></span></a>
+  </j-template>
+</activity-nav-bar>
+<div class="page-content clearfix profilePage">
+  <div class="card large mtn">
+    <div class="card-image center-align" {:imgResolver}="user.profileImage" {gender}="user.gender" set-as-background="true" @on-dispatcher="imageChangeDispatcher()">
+      <!-- <span @click="addCoverPhoto()" class="right fa fa-image pam fa-lg"></span> -->
+      <div class="user-info left-align">
+        <h5>${user.name}<span *if="user.privacy.age">, ${:CalculateAge(user.age, user.date)}</span></h5>
+        <h6>${setFlirtCategory(user.style)} Flirt</h6>
+      </div>
+    </div>
+    <div class="card-content">
+      <h6 *if="user.location && user.privacy.location">Location:<span class="right">${:user.location}</span></h6>
+      <h6 *if="!isMe && user.privacy.location">${getLocationDiff()} away</h6>
+      <h6 *if="(user.privacy.mobile && user.mobile)">Mobile: <span class="right">${:user.mobile}</span></h6>
+      <p *if="user.description"> ${user.description}</p>
+    </div>
+  </div>
+
+  <div class="bottom-container">
+    <div class="row options" *if="!isMe && !isBlockedUser">
+      <div class="col s10">
+        <j-fragment *if="!isMatch">
+          <div class="col s6">
+            <a *if="!isMyRequest else isMyRequestTemplate" class="red pulse accent-3 btn-floating" @click="PerformTask(user,'like','isMyRequest')">
+              <i class="fa fa-heart fa-2x"></i>
+            </a>
+          </div>
+          <div class="col s6">
+            <a *if="!isMyFavorite else isMyFav" class="btn-floating blue accent-3" @click="PerformTask(user,'favorite','isMyFavorite')">
+              <i class="fa fa-star fa-2x"></i>
+            </a>
+          </div>
+        </j-fragment>
+      </div>
+      <div class="col s2" *if="user.privacy.pm">
+        <a class="btn-floating white" @click="openChatBox(user)"><i class="fa blue-text fa-envelope fa-2x"></i></a>
+      </div>
+    </div>
+    <div class="row options" *if="isMe">
+      <div class="col s12">
+        <a :openIntent="settings.profile:user" class="right blue-text btn-floating btn-medium blue">
+          <i class="fa fa-user-edit"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<j-template #is-my-fav>
+  <span class="btn-floating yellow accent-3"><i class="fa fa-star fa-2x"></i></span>
+</j-template>
+
+<j-template #is-my-request-template>
+  <a class="white btn-floating" @click="undoRequest()"><i class="fa fa-undo fa-2x red-text"></i></a>
+</j-template>

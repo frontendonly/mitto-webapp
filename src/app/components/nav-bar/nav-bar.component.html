@@ -1,0 +1,14 @@
+<div class="navbar navbar-dark sticky-top bg-primary flex-md-nowrap p-0 shadow navbar-expand-lg">
+  <div class="w-100 p-2 clearfix">
+    <!-- <button class="navbar-toggler" *if="!barIsVisible" @click="openMenu=!openMenu" type="button"> 
+      <span class="navbar-toggler-icon"></span> 
+    </button> -->
+    <a class="navbar-brand" href="#/">${appName}</a>
+    <a :openIntent="settings.filters" class="float-end navbar-brand p-0 m-0">
+      <span class="bi bi-funnel"></span>
+    </a>
+  </div>
+</div>
+<div class="ui-PageMenuContainer" @click="openMenu=!openMenu" {class}="{'is-open': openMenu}">
+  <app-menu {userInfo} {isAuthenticated}></app-menu>
+</div>

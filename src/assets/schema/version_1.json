@@ -1,0 +1,580 @@
+{
+    "circles": {
+        "type": "create",
+        "definition": [{
+            "sid": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "fid": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "connected": {
+                "defaultValue": "false",
+                "type": "BOOLEAN",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "creation_date": {
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "type": "TIMESTAMP",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            }
+        }],
+        "additionalConfig": {
+            "primaryKey": null,
+            "foreignKey": null,
+            "lastInsertId": 0,
+            "allowedMode": {
+                "readwrite": 1,
+                "readonly": 1
+            },
+            "index": [],
+            "_hash": "470dde01-6f47-838c-be0f-f588730bbf00",
+            "_previousHash": ""
+        }
+    },
+    "user_info": {
+        "type": "create",
+        "definition": [{
+            "name": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "mobile": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "quote": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "style": {
+                "defaultValue": 1,
+                "type": "INTEGER",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "privacy": {
+                "defaultValue": null,
+                "type": "OBJECT",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "gender": {
+                "defaultValue": 1,
+                "type": "SMALLINT",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "blockedUsers": {
+                "defaultValue": null,
+                "type": "ARRAY",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "date": {
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "type": "TIMESTAMP",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "lastModified": {
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "type": "TIMESTAMP",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "profileImage": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "profileImageUpdate": {
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "type": "TIMESTAMP",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "age": {
+                "defaultValue": 18,
+                "type": "NUMBER",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "height": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "description": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "location": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "geoLocation": {
+                "defaultValue": null,
+                "type": "OBJECT",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "interested": {
+                "defaultValue": null,
+                "type": "ARRAY",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "searchFilter": {
+                "defaultValue": null,
+                "type": "OBJECT",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "username": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "uid": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "bytes": {
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true,
+                "defaultValue": null
+            }
+        }],
+        "additionalConfig": {
+            "primaryKey": null,
+            "foreignKey": null,
+            "lastInsertId": 0,
+            "allowedMode": {
+                "readwrite": 1,
+                "readonly": 1
+            },
+            "index": [],
+            "_hash": "f588c94d7e84f60c8aaa42410f25bae1",
+            "_previousHash": "8f1564a41d4a28f2f662e68cafad4c37"
+        }
+    },
+    "visitors": {
+        "type": "create",
+        "definition": [{
+            "visitor_id": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "visitor_uid": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "notification": {
+                "defaultValue": true,
+                "type": "BOOLEAN",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "last_visit": {
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "type": "TIMESTAMP",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            }
+        }],
+        "additionalConfig": {
+            "primaryKey": null,
+            "foreignKey": null,
+            "lastInsertId": 0,
+            "allowedMode": {
+                "readwrite": 1,
+                "readonly": 1
+            },
+            "index": [],
+            "_hash": "2a455535-f8f4-2703-f169-351328199dd4",
+            "_previousHash": "83704674784173ecf942a18c03f7d12e"
+        }
+    },
+    "favorite": {
+        "type": "create",
+        "definition": [{
+            "uid": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "sid": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "notification": {
+                "defaultValue": true,
+                "type": "BOOLEAN",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "creation_date": {
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "type": "TIMESTAMP",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            }
+        }],
+        "additionalConfig": {
+            "primaryKey": null,
+            "foreignKey": null,
+            "lastInsertId": 0,
+            "allowedMode": {
+                "readwrite": 1,
+                "readonly": 1
+            },
+            "index": [],
+            "_hash": "61dd1025-6a67-9a24-aecf-7e1cfabeb83b",
+            "_previousHash": "61dd1025-6a67-9a24-aecf-7e1cfabeb83b"
+        }
+    },
+    "uploads": {
+        "type": "create",
+        "definition": [],
+        "additionalConfig": {
+            "primaryKey": null,
+            "foreignKey": null,
+            "lastInsertId": 0,
+            "allowedMode": {
+                "readwrite": 1,
+                "readonly": 1
+            },
+            "index": [],
+            "_hash": "3f49f673-ae53-3773-d707-a02f988bb945",
+            "_previousHash": ""
+        }
+    },
+    "messages": {
+        "type": "create",
+        "definition": [{
+            "content": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "type": {
+                "defaultValue": "message",
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "status": {
+                "defaultValue": "unread",
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "attachments": {
+                "defaultValue": null,
+                "type": "OBJECT",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "sender": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "receiver": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "relative_id": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "date": {
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "type": "TIMESTAMP",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            }
+        }],
+        "additionalConfig": {
+            "primaryKey": null,
+            "foreignKey": null,
+            "lastInsertId": 0,
+            "allowedMode": {
+                "readwrite": 1,
+                "readonly": 1
+            },
+            "index": [],
+            "_hash": "0f7be7f5-4291-101a-7a84-8cd0b5d37311",
+            "_previousHash": ""
+        }
+    },
+    "coins_history": {
+        "type": "create",
+        "definition": [{
+            "amount": {
+                "defaultValue": null,
+                "type": "INTEGER",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "receiver": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "sender": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "date": {
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "type": "TIMESTAMP",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            }
+        }],
+        "additionalConfig": {
+            "primaryKey": null,
+            "foreignKey": null,
+            "lastInsertId": 0,
+            "allowedMode": {
+                "readwrite": 1,
+                "readonly": 1
+            },
+            "index": [],
+            "_hash": "90034761-62ce-648b-1347-9ed4613ece35",
+            "_previousHash": ""
+        }
+    },
+    "coins": {
+        "type": "create",
+        "definition": [{
+            "uid": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "total": {
+                "defaultValue": null,
+                "type": "INTEGER",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "disabled": {
+                "defaultValue": null,
+                "type": "BOOLEAN",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "pin": {
+                "defaultValue": null,
+                "type": "INTEGER",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "date": {
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "type": "TIMESTAMP",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "last_updated": {
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "type": "TIMESTAMP",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "message": {
+                "defaultValue": null,
+                "type": "VARCHAR",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            }
+        }],
+        "additionalConfig": {
+            "primaryKey": null,
+            "foreignKey": null,
+            "lastInsertId": 0,
+            "allowedMode": {
+                "readwrite": 1,
+                "readonly": 1
+            },
+            "index": [],
+            "_hash": "9de01565-d530-af00-c36d-935f0ca369b8",
+            "_previousHash": ""
+        }
+    },
+    "configuration": {
+        "type": "create",
+        "definition": [{
+            "config": {
+                "defaultValue": null,
+                "type": "OBJECT",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "accessToken": {
+                "defaultValue": null,
+                "type": "OBJECT",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "pushNotification": {
+                "defaultValue": null,
+                "type": "OBJECT",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "restrictions": {
+                "defaultValue": null,
+                "type": "OBJECT",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "coinsPurchase": {
+                "defaultValue": null,
+                "type": "ARRAY",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "packages": {
+                "defaultValue": null,
+                "type": "ARRAY",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "fixer": {
+                "defaultValue": null,
+                "type": "OBJECT",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            },
+            "startTime": {
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "type": "TIMESTAMP",
+                "AUTO_INCREMENT": false,
+                "PRIMARY_KEY": false,
+                "NOT_NULL": true
+            }
+        }],
+        "crud": {
+            "transactions": [{
+                "type": "insert",
+                "filePath": "/assets/schema/configuration.json"
+            }]
+        },
+        "additionalConfig": {
+            "primaryKey": null,
+            "foreignKey": null,
+            "lastInsertId": 0,
+            "allowedMode": {
+                "readwrite": 1,
+                "readonly": 1
+            },
+            "index": [],
+            "_hash": "4993d8c8-972c-596a-474d-48a255803647",
+            "_previousHash": ""
+        }
+    }
+}

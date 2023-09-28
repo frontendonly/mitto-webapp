@@ -1,0 +1,25 @@
+<activity-nav-bar page-title="Messages"></activity-nav-bar>
+<div class="page-content clearfix" interval="reloadPage" timer="10000">
+  <section>
+    <div class="row blue lighten-2 smallSearchContainer">
+      <div class="col s12  mtm mbs">
+        <input type="search" placeholder="Search Message..." :model="searchQuery" :filter-box="message-filter" />
+      </div>
+    </div>
+    <ul class="collection no-border">
+      <li class="collection-item avatar" *for="(idx,item) in messages" message-filter="${:item.name.toLowerCase()}" :class="isUnread(item)" :swipe-registry @on-swipe-event="onSwipeEvent($event, idx)">
+        <img dimension="70x70" {:imgResolver}="item.image" class="circle">
+        <span class="title">${:item.name}</span>
+        <p class="truncate">
+          <j-fragment *switch="item.type">
+            <span .case="attachment">Sent a ${:item.attachments.type}</span>
+            <span .default>
+                  <span :html="item.content"></span>
+            </span>
+          </j-fragment>
+        </p>
+      </li>
+    </ul>
+    <div class="pam uiCenterError" *if="!isLoading && !messages.length"><span class="mediumFont"> No Messages!! </span></div>
+  </section>
+</div>

@@ -1,0 +1,102 @@
+<activity-nav-bar page-title="Manage Coins">
+  <j-template #right-content data-has-pin>
+    <a *if="hasPin" :openIntent="settings.changePin"><span class="fa fa-key fa-lg"></span></a>
+  </j-template>
+</activity-nav-bar>
+<div class="page-content clearfix">
+  <div class="row pam" *if="!totalCoins">
+    <div class="card-panel blue lighten-3">You have ${totalCoins} coins in your account, please refill.</div>
+  </div>
+  <div class="row no-mgn" *if="totalCoins && hasPin">
+    <div class="col s12 m6">
+      <ul class="collapsible" data-collapsible="accordion">
+        <li @click="setAccordion('history')">
+          <div class="collapsible-header"><span class="h4  blue-text"> History </span></div>
+          <div class="collapsible-body no-padd white" :style="{'display':showAccordion('history')}">
+            <ul class="collection">
+              <li class="collection-item" :class="setKlass(history.debit)" *for="history in historys">
+                <i class="fa fa-lg fa-arrow-circle-${!history.debit?'down green-text':'up red-text'}"></i> <strong> ${:history.name || 'Mitto'}</strong>
+                <small class="ecg"> ${:history.date | timeAgo}</small>
+                <span class="right">${:history.amount}</span>
+              </li>
+            </ul>
+
+            <div class="pam" *if="!historys.length">
+              <div class="card-panel blue lighten-3">No transaction history.</div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="col s12 m6">
+      <ul class="collapsible" data-collapsible="accordion">
+        <li>
+          <div class="collapsible-header" @click="setAccordion('transfer')">
+            <span class="h4 blue-text"> Transfer Coins</span>
+            <span class="col s6"><strong class="right">Balance: ${totalCoins}</strong></span>
+          </div>
+          <div class="collapsible-body pam white" :style="{display:showAccordion('transfer')}">
+            <div class="card-panel blue lighten-3" *if="transfer.error.length">
+              <div *for="err in transfer.error">${err}</div>
+            </div>
+            <div class="row">
+              <div class="input-field col s12">
+                <input type="number" :model="transfer.form.amount" class="" placeholder="Enter Amount:" name="amount" autocomplete="off" @blur="validator('amount')">
+              </div>
+              <div class="input-field col s12">
+                <input type="text" class="" @input="selectUser()" :model="transfer.form.user" placeholder="User:" autocomplete="off">
+                <ul class="collection">
+                  <li class="collection-item" *for="user in circleList" @click="addUser(user)">${:user.name}</li>
+                </ul>
+              </div>
+              <div class="input-field col s12">
+                <input type="password" :model="transfer.form.pin" autocomplete="off" class="" placeholder="Enter Pin" name="vPassword">
+              </div>
+              <div class="input-field col s12" *if="canTransfer()">
+                <button class="btn btn-primary btnsubmit right" @click="submit()"> Transfer </button>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="row no-mgn">
+    <div class="col s12 m6">
+      <ul class="collapsible" data-collapsible="accordion" *if="!hasPin">
+        <li>
+          <div class="collapsible-body pam" :style="{display:showAccordion('resetPin')}">
+            <div class="card-panel blue lighten-3">Please enter a secure pin, you will need this for every transaction you make.</div>
+            <div class="row">
+              <div class="input-field col s12">
+                <input type="password" class="" placeholder="Enter Pin" :model="pinForm.newPin" autocomplete="off">
+              </div>
+              <div class="input-field col s12">
+                <input type="password" class="" placeholder="Re-enter Pin" :model="pinForm.verifyPin" autocomplete="off">
+              </div>
+              <div class="input-field col s12">
+                <div class="col s12">
+                  <button class="btn btn-primary btnsubmit right" :disabled="!pinForm.newPin || !pinForm.verifyPin || pinForm.newPin !== pinForm.verifyPin" @click="changePin()"> set Pin </button></div>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="col s12 m6" *if="hasPin">
+      <ul class="collapsible" data-collapsible="accordion">
+        <li>
+          <div class="collapsible-header" @click="setAccordion('buy')"><span class="h4 blue-text"> Buy Coins </span></div>
+          <div class="collapsible-body no-padd white" :style="{display:showAccordion('buy')}">
+            <div class="collection">
+              <a class="collection-item black-text" :class="{'blue':idx==selected}" @click="purchase(coin, idx)" *for="(idx,coin) in coinsPurchase">
+                ${coin.value} Coins <span class="right">${currency}${coin.amount | money:currency}</span>
+              </a>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

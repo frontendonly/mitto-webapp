@@ -15,8 +15,7 @@
             "entryFile": "main.js",
             "copy": [
                {
-                  "src": "src/assets/",
-                  "dest": "dist/assets/"
+                  "src": "./src/assets/"
                }
             ]
          },
@@ -40,7 +39,12 @@
       }
    },
    "resolve": {
-      "alias": {}
-   },
+      "alias": {
+          "@jeli/*": "../jeli-js/dist/",
+          "@jeli/materials":  "../jeli-materials/dist/fo",
+          "@jeli/helpers": "../js-helpers",
+          "@jeli/jdb/*": "../jeli-db/dist/"
+      }
+  },
    "default": "mitto"
 }

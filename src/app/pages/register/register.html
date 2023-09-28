@@ -1,0 +1,43 @@
+<activity-nav-bar pageTitle="Register" previous="login"></activity-nav-bar>
+<div class="section clearfix">
+  <form {:formControl}="registerForm" name="registerForm" no-validate>
+    <div class="mb-3">
+      <label for="name" class="form-label">Full Name</label>
+      <input type="text" id="name" :formField="name" class="validate form-control"
+        {class}="errorField('name','valid','invalid')">
+    </div>
+    <div class="mb-3">
+      <label for="mobile" class="form-label">Mobile Number</label>
+      <input type="tel" id="mobile" :formField="mobile" class="validate form-control"
+        {class}="errorField('mobile','valid','invalid')">
+    </div>
+
+    <div class="mb-3">
+      <fo-radio-button label="I am:" name="gender">
+        <radio-item value="female"><i class="fa fa-female"></i> Female</radio-item>
+        <radio-item value="male"><i class="fa fa-male"></i> Male</radio-item>
+      </fo-radio-button>
+    </div>
+
+    <div class="mb-3">
+      <h5 class="">Set a personal username for your profile</h5>
+      <div *if="registerForm.error.username" class="alert alert-danger">Inavlid or username already exists</div>
+      <div class="mt-2">
+        <label for="username">Enter a preferred username</label>
+        <input type="text" id="username" :formField="username" {class}="errorField('username','valid','invalid')">
+      </div>
+    </div>
+    <div class="mb-3">
+      <fo-date-picker name="dob" label="Date of birth" maxAge="80" minAge="13" hintLabel="age >13 <80"></fo-date-picker>
+    </div>
+
+    <div class="mb-3">
+      <div class="text-primary">By clicking Sign up, you acknowledge that you accept our <a
+          :openIntent="terms.conditions">Terms and conditions</a>
+      </div>
+    </div>
+    <div class="mb-4 clearfix">
+      <button type="button" class="btn btn-primary float-end" @click="register()" {disabled}="!registerForm.valid || isSubmitting">Continue</button>
+    </div>
+  </form>
+</div>

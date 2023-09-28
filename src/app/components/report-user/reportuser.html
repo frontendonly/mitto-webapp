@@ -1,0 +1,68 @@
+<div class="center">
+  <h5>Report ${reportData.name}</h5>
+  <small>Tell us why you are sending this report.</small>
+</div>
+<div class="row mtl">
+  <div class="col s12">
+    <label>
+            <input type="radio" class="with-gap" :hide="true" :model="reportData.type" value="0"  name="type" />
+            <span class="black-text">Sexual harassment</span>
+        </label>
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <label>
+                <input type="radio" class="with-gap" :hide="true" :model="reportData.type" value="1"  name="type" />
+                <span class="black-text">Inappropriate Messages</span>
+            </label>
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <label>
+            <input type="radio" class="with-gap" :hide="true" :model="reportData.type" value="2"  name="type" />
+            <span class="black-text">Inappropriate Photos</span>
+        </label>
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <label>
+            <input type="radio" class="with-gap" :hide="true"  :model="reportData.type" value="3"  name="type" />
+            <span class="black-text">User is underage</span>
+        </label>
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <label for="spamming">
+            <input type="radio" class="with-gap" :hide="true" :model="reportData.type" value="4" id="spamming" name="type" />
+            <span class="black-text">Spamming / adveritsement</span>
+        </label>
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <label for="otherharassment">
+            <input type="radio" class="with-gap" :hide="true"  :model="reportData.type" value="5" id="otherharassment" name="type" />
+            <span class="black-text">Other harassment</span>
+        </label>
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <label for="other"> 
+            <input type="radio" class="with-gap"  :hide="true" :model="reportData.type" value="6" id="other" name="type" />
+            <span class="black-text">Other</span>
+    </label>
+  </div>
+</div>
+<div class="row" *if="reportData.type > 4">
+  <div class="input-field col s12">
+    <textarea data-length="120" :model="reportData.other" class="materialize-textarea" placeholder="Enter other reasons"></textarea>
+  </div>
+</div>
+<div class="row center">
+  <button class="btn btn-primary btnsubmit" @click="sendReport()" :hide="isSending">Send report</button>
+</div>
