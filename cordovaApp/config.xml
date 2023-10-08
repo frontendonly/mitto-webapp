@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.jeli.app.mitto" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Mitto</name>
+    <description>
+        Applicaton for meeting people.
+    </description>
+    <author email="gojeckskenwood@gmail.com" href="http://frontendonly.com">
+        Apache Cordova Team
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+    <access origin="https://api.frontendonly.com/*" />
+    <allow-intent href="https://api.frontendonly.com/*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    <platform name="android">
+        <icon density="ldpi" src="res/icons/android/mipmap-ldpi/ic_launcher.png" />
+        <icon density="mdpi" src="res/icons/android/mipmap-mdpi/ic_launcher.png" />
+        <icon density="hdpi" src="res/icons/android/mipmap-hdpi/ic_launcher.png" />
+        <icon density="xhdpi" src="res/icons/android/mipmap-xhdpi/ic_launcher.png" />
+        <icon density="xxhdpi" src="res/icons/android/mipmap-xxhdpi/ic_launcher.png" />
+        <icon density="xxxhdpi" src="res/icons/android/mipmap-xxxhdpi/ic_launcher.png" />
+        <allow-intent href="market:*" />
+        <preference name="android-windowSoftInputMode" value="adjustNothing|adjustPan" />
+        <preference name="android-configChanges" value="orientation|keyboardHidden|keyboard|screenSize|locale" />
+        <preference name="android-isScrollContainer" value="false" />
+        <preference name="SplashMaintainAspectRatio" value="true|false" />
+        <preference name="SplashShowOnlyFirstTime" value="true|false" />
+    </platform>
+    <platform name="ios">
+        <allow-intent href="itms:*" />
+        <allow-intent href="itms-apps:*" />
+        <icon height="180" src="res/icons/ios/icon-App-60x60@3x.png" width="180" />
+        <icon height="60" src="res/icons/ios/icon-App-60x60@1x.png" width="60" />
+        <icon height="120" src="res/icons/ios/icon-App-60x60@2x.png" width="120" />
+        <icon height="29" src="res/icons/ios/icon-App-29x29@1x.png" width="29" />
+        <icon height="58" src="res/icons/ios/icon-small-50x50@2x.png" width="58" />
+        <preference name="HideKeyboardFormAccessoryBar" value="true" />
+        <preference name="ShowSplashScreenSpinner" value="false" />
+        <preference name="KeyboardShrinksView" value="true" />
+    </platform>
+    <preference name="AndroidPersistentFileLocation" value="Internal" />
+    <preference name="SplashScreenDelay" value="0" />
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="webviewbounce" value="false" />
+    <preference name="Orientation" value="portrait" />
+    <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="Mitto is currently using your location." />
+    <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" value="Mitto is using your location." />
+    <preference name="GOOGLE_MAPS_ANDROID_API_KEY" value="AIzaSyD28HkB3ZQfBsOMjFSf0rX8-b9-2e4GCK4" />
+    <preference name="GOOGLE_MAPS_IOS_API_KEY" value="AIzaSyCefvE4fmIXE51muylRfrkDx_Xs7ItWF1U" />
+    <plugin name="cordova-plugin-whitelist" spec="^1.3.4" />
+    <plugin name="cordova-plugin-appavailability" spec="^0.4.2" />
+    <plugin name="cordova-plugin-camera" spec="^2.4.1">
+        <variable name="CAMERA_USAGE_DESCRIPTION" value=" " />
+        <variable name="PHOTOLIBRARY_USAGE_DESCRIPTION" value=" " />
+    </plugin>
+    <plugin name="cordova-plugin-compat" spec="^1.2.0" />
+    <plugin name="cordova-plugin-secure-key-store" spec="^1.5.5" />
+    <plugin name="cordova-plugin-secure-storage" spec="^2.6.8" />
+    <plugin name="cordova-plugin-splashscreen" spec="git+https://github.com/apache/cordova-plugin-splashscreen.git" />
+    <plugin name="cordova-plugin-statusbar" spec="^2.4.3" />
+    <plugin name="cordova-plugin-inappbrowser" spec="^3.1.0" />
+    <plugin name="cordova-plugin-network-information" spec="^2.0.2" />
+    <plugin name="cordova-plugin-device" spec="^2.0.3" />
+    <plugin name="cordova-plugin-dialogs" spec="^2.0.2" />
+    <plugin name="cordova-plugin-actionsheet" spec="^2.3.3" />
+    <plugin name="cordova-plugin-listpicker" spec="^2.2.2" />
+    <plugin name="cordova-plugin-file-transfer" spec="^1.7.1" />
+    <plugin name="cordova-plugin-ionic-webview" spec="^4.1.2" />
+    <plugin name="cordova-plugin-keyboard" spec="^1.2.0" />
+    <plugin name="cordova-plugin-file-opener2" spec="^2.2.1">
+        <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.+" />
+    </plugin>
+    <plugin name="cordova-plugin-buildinfo" spec="^4.0.0" />
+    <plugin name="cordova-android-support-gradle-release" spec="^3.0.1">
+        <variable name="ANDROID_SUPPORT_VERSION" value="27.+" />
+    </plugin>
+    <plugin name="cordova-plugin-geolocation" spec="^2.4.3">
+        <variable name="GEOLOCATION_USAGE_DESCRIPTION" value=" " />
+    </plugin>
+    <plugin name="cordova-plugin-datepicker" spec="0.9.3" />
+    <plugin name="cordova-plugin-badge" spec="0.8.8" />
+    <plugin name="cordova-plugin-googlemaps" spec="2.6.2">
+        <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="Mitto is currently using your location." />
+        <variable name="LOCATION_ALWAYS_USAGE_DESCRIPTION" value="Mitto is using your location." />
+        <variable name="GOOGLE_MAPS_ANDROID_API_KEY" value="AIzaSyD28HkB3ZQfBsOMjFSf0rX8-b9-2e4GCK4" />
+        <variable name="GOOGLE_MAPS_IOS_API_KEY" value="AIzaSyCefvE4fmIXE51muylRfrkDx_Xs7ItWF1U" />
+    </plugin>
+    <plugin name="cordova-plugin-contacts" spec="^3.0.1">
+        <variable name="CONTACTS_USAGE_DESCRIPTION" value=" " />
+    </plugin>
+    <plugin name="cordova-plugin-save-image" spec="^0.3.0" />
+    <plugin name="cordova-sqlite-storage" spec="3.4.0" />
+</widget>

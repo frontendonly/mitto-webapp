@@ -1,1 +1,7 @@
 node_modules
+
+# cordova ignore folders
+/cordovaApp/platforms
+/cordovaApp/plugins
+/cordovaApp/www
+/cordovaApp/hooks
