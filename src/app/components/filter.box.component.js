@@ -1,27 +1,21 @@
 Directive({
     selector: "filterBox",
-    props: ["jModel", "filterBox"],
-    DI: ["dom", "ElementRef"],
-    registry: [{
-        type: 'event',
-        name: 'default',
-        handler: 'inputChanges($event)'
-    }]
-}, FilterBoxDirective);
-
-function FilterBoxDirective(dom, elementRef) {
+    props: ["filterValue=:filterBox"],
+    events: ['input:event=inputChanges($event)']
+})
+export function FilterBoxDirective() {
     this.inputChanges = function(event) {
-        var binding = this.filterBox;
-        var elements = dom.querySelectorAll(document, '[' + binding + ']');
+        var binding = this.filterValue;
+        var elements = document.querySelectorAll('[' + binding + ']');
         if (elements.length) {
             var len = elements.length,
                 inc = 0,
-                inputValue = elementRef.value.toLowerCase();
+                inputValue = event.target.value.toLowerCase();
             while (len > inc) {
                 var cur = elements[inc];
                 if (inputValue) {
                     var attrValue = cur.getAttribute(binding);
-                    if (!$inArray(inputValue, attrValue)) {
+                    if (!attrValue.includes(inputValue)) {
                         cur.style.display = 'none';
                     }
                 } else {

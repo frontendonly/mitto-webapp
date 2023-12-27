@@ -8,51 +8,20 @@ Service({
     ]
 })
 export function ChatService(fileService, databaseService) {
-    var EMOTICON = {
-        "o:)": "angel",
-        ":3": "colonthree",
-        "o.O": "confused",
-        ":'(": "cry",
-        "3:)": "devil",
-        ":(": "frown",
-        ":O": "gasp",
-        "8)": "glasses",
-        ":D": "grin",
-        ">:(": "grumpy",
-        "<3": "heart",
-        "^_^": "kiki",
-        ":*": "kiss",
-        ":v": "pacman",
-        ":)": "smile",
-        "-_-": "squint",
-        "8|": "sunglasses",
-        ":p": "tongue",
-        ":/": "unsure",
-        ">:O": "upset",
-        ";)": "wink"
-    };
-
     this.databaseService = databaseService;
+    this.fileService = fileService;
     this.getFilePath = fileService.getFilePath;
     this.getImageAsBlobURL = fileService.toURL;
 
     this.convertContent = function(text) {
-        Object.keys(EMOTICON).forEach(function(eicon) {
-            var icoE = eicon.replace(/([.?*+^_[\]\\(){}|-])/g, "\\$1");
-            text = text.replace(new RegExp(icoE, "g"), function() {
-                return '<img src="/assets/bnsmiley.on1net.com/' + EMOTICON[eicon] + '.gif" class="img" title="' + EMOTICON[eicon] + '">';
-            });
+        var icoE = eicon.replace(/([.?*+^_[\]\\(){}|-])/g, "\\$1")
+        return text.replace(new RegExp(icoE, "g"), function() {
+            return '<i class="bi-'+EMOTICON[icoE]+'"></i>';
         });
-
-        return text
     };
 
     this.getIcons = function() {
         return Conf.getSmileyConfig();
-    };
-
-    this.getChatTimeStamp = function() {
-        return Date.now();
     };
 }
 
@@ -69,16 +38,6 @@ ChatService.prototype.checkUserImage = function(path, gender, callback, cbf) {
     }
 
     this.fileService.download(path, callback, cbf);
-};
-
-
-ChatService.prototype.updateReadIcon = function(id) {
-    dom('ul#ChatThreadFrame_' + id + " span#readIcon")
-        .addClass("read");
-}
-
-ChatService.prototype.getTextArea = function() {
-    return dom("[view-page]:visible textarea")[0];
 };
 
 ChatService.prototype.uploadImage = function(path, _img) {
@@ -133,38 +92,31 @@ ChatService.prototype.getMessages = function(replacer) {
     return this.databaseService.core.jQl('select -* -messages -where(receiver=%receiver% && sender=%sender% || receiver=%sender% && sender=%receiver%) orderBy(date)', null, replacer);
 };
 
-ChatService.prototype.postMessage = function(postData, handler) {
-    handler = handler || {};
-    this.databaseService.core.jQl('insert -%0% -messages', {
-        onSuccess: handler.onSuccess || noop,
-        onError: handler.onError || console.log
-    }, [[postData]]);
+ChatService.prototype.postMessage = function() {
+    return this.databaseService.core.jQl('insert -%0% -messages', null, arguments);
 };
 
 ChatService.prototype.updateMessages = function(data, handler) {
     this.databaseService.core.jQl('update -messages -%data% -%query%', handler, data);
 };
 
-ChatService.prototype.deleteMessage = function(query, cb) {
-    this.databaseService.core.jQl('delete -messages -sender=%sender% && date=%date%', null, query)
-    .then(() => cb(true));
+ChatService.prototype.deleteMessage = function() {
+    return this.databaseService.core.jQl('delete -messages -%0%', null, arguments);
 };
 
-ChatService.prototype.deleteMessages = function(query, cb) {
-    this.databaseService.core.jQl('delete -messages -where(%query%)', mull, query)
-    .then(() => cb(true), () => cb(false));
+ChatService.prototype.deleteMessages = function() {
+    return this.databaseService.core.jQl('delete -messages -%0%', null, arguments);
 };
 
-ChatService.prototype.getAllMessages = function(cb) {
-    this.databaseService.core.jQl('select -* -messages -groupByStrict(sender,receiver) -limit(0,1)', {
-        onSuccess: function(tx) {
-            cb(tx.getResult().map(function(item) {
-                return item[0];
-            }));
-        },
-        onError: function(err) {
-            console.log(err);
-            cb([]);
+ChatService.prototype.getAllMessages = function(uid) {
+    return this.databaseService.core.jQl("select -name,profileImage,content,attachments,type,status,date,CASE(WHEN sender='"+uid+"' THEN receiver ELSE sender) as rid,CASE(WHEN sender='"+uid+"' THEN sender ELSE receiver) as sid -messages -%0%", null, [{
+        where: [{relative_id : '0'}],
+        lookup: {
+            table: "user_info",
+            on: 'uid',
+            fields: 'name,profileImage',
+            merge: true,
+            key: "CASE(WHEN sender='"+uid+"' THEN 'receiver' ELSE 'sender')"
         }
-    });
+    }]);
 };

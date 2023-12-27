@@ -1,75 +1,36 @@
+import { ChatService } from "../../services/chat.service";
+import {DOMHelper, EventEmitter } from '@jeli/core';
+
 Element({
     selector: "chat-icons",
-    DI: ['ElementRef', 'jChatService', 'dom'],
-    registry: [{
-        type: "event",
-        name: "click",
-        handler: "selectIcon($event)"
-    }, {
-        type: "emitter",
-        name: "onIconSelected"
-    }]
-}, ChatIconsDirective);
-
-
-function ChatIconsDirective(elementRef, jChatService, dom) {
-    this.didInit = function() {
-        jChatService.getIcons()
-            .then(function(res) {
-                //this.icons = [].concat(res.emotions, res.love);
-                var idx = 0,
-                    parent = {
-                        attributes: {
-                            class: "pam"
-                        },
-                        children: []
-                    },
-                    split = {
-                        element: "div",
-                        attributes: {
-                            class: "row"
-                        },
-                        children: []
-                    };
-
-                [].concat(res.emotions, res.love).forEach(function(item) {
-                    if (idx > 5) {
-                        idx = 0;
-                        parent.children.push(split);
-                        split = {
-                            element: "div",
-                            attributes: {
-                                class: "row"
-                            },
-                            children: []
-                        };
-                    }
-
-                    split.children.push({
-                        element: "div",
-                        attributes: {
-                            class: "col s2"
-                        },
-                        children: [{
-                            element: "img",
-                            attributes: {
-                                alt: "",
-                                class: "responsive-img",
-                                src: item
-                            }
-                        }]
-                    });
-
-                    idx++;
-                });
-
-                elementRef.appendChild(dom.createElement("div", parent));
-            });
-    };
-
-    this.selectIcon = function(event) {
-        if (event.target && event.target instanceof HTMLImageElement) {
-            this.onIconSelected.emit(event.target.getAttribute('src'));
-        }
-    };
+    DI: [ChatService, 'HostElement?'],
+    events: ['onIconSelected:emitter', 'click:event=selectIcon($event)']
+})
+export function ChatIconsElement(chatService, hostElement) {
+    this.chatService = chatService;
+    this.hostElement = hostElement;
+    this.onIconSelected = new EventEmitter();
 }
+
+ChatIconsElement.prototype.didInit = function () {
+    this.chatService.getIcons()
+        .then(res => {
+            DOMHelper.createElement('div', { class: 'row g-3' }, row => {
+                [].concat(res.emotions, res.love).forEach(function (item) {
+                    DOMHelper.createElement('div', { class: 'col-2' }, col => {
+                        DOMHelper.createElement("img", {
+                            alt: "",
+                            class: "responsive-img",
+                            src: item
+                        }, col)
+                    }, row);
+                });
+            }, this.hostElement.nativeElement);
+        });
+};
+
+ChatIconsElement.prototype.selectIcon = function (event) {
+    if (event.target && event.target instanceof HTMLImageElement) {
+        this.onIconSelected.emit(event.target.getAttribute('src'));
+    }
+};

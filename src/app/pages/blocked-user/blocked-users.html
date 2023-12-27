@@ -1,13 +1,14 @@
-<activity-nav-bar page-title="Blocked users"></activity-nav-bar>
-<div class="page-content clearfix">
-  <ul class="collection no-border">
-    <li class="pam uiCenterError" *if="!(userInfo.blockedUser || []).length"><span class="mediumFont"> You have no blocked users.</span></li>
-    <li class="collection-item avatar" *for="(idx,item) in blockedUsers">
-      <img dimension="70x70" :imgResolver="item.image" class="circle" />
-      <p class="title">${:item.name}</p>
-      <div class="secondary-content">
-        <button class="btn btnsubmit waves-effect waves-light" @click="unBlockUser(idx, item.uid)">Unblock</button>
-      </div>
+<activity-nav-bar pageTitle="Blocked users" @onClose="updateProfile()"></activity-nav-bar>
+<div class="p-3 clearfix">
+  <ul class="list-group" @click-delegate:button="unBlockUser(idx, item.uid)">
+    <li class="list-group-item list-group-item-info" *if="!blockedUsers.length"><span class="mediumFont"> You have no
+        blocked users.</span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-center" *for="item of blockedUsers; idx=index">
+      <div setAsBackground="true" fallback="true" dimension="70x70" {:imgResolver}="item.profileImage"
+        {gender}="item.gender" class="rounded-circle border bg-primary-subtle text-center" style="font-size:3em"></div>
+      <p class="title m-0 fw-bolder">${:item.name | capitalize}</p>
+      <button class="btn btn-danger btn-sm">Unblock</button>
     </li>
   </ul>
 </div>

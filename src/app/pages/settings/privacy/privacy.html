@@ -1,14 +1,6 @@
-<activity-nav-bar page-title="Privacy" @on-close="updateSettings()"></activity-nav-bar>
-<div class="page-content clearfix">
-  <div class="section" {:form-control}="privacyForm">
-    <subscription-bar {user-info} @on-validate="subscriptionCheck($event)"></subscription-bar>
-    <div class="row" *for="item in form">
-      <div class="col s12">
-        <label for="${:item.id}">
-            <input type="checkbox" id="${:item.id}" {:form-field}="item.id"/>
-            <span class="black-text">${:item.label}</span>
-        </label>
-      </div>
-    </div>
-  </div>
+<activity-nav-bar pageTitle="Privacy" @onClose="updateSettings()"></activity-nav-bar>
+<div class="p-3 clearfix" {:formControl}="privacyForm">
+  <subscription-bar {userInfo} @onValidate="subscriptionCheck($event)"></subscription-bar>
+  <fo-check-box *for="item of form" cbClass="form-switch mb-2" {name}="item.id" {label}="item.label">
+  </fo-check-box>
 </div>

@@ -1,63 +1,61 @@
-import { DataService } from "./services/data.service";
-import { GlobalService } from "./services/globalservice.factory";
+import { AlertService } from "./services/alert.service";
+import { ConfigService } from "./services/config.service";
 import { RealTimeService } from "./services/notification.factory";
-import {FoAuthService} from '@jeli/materials';
-import {ViewIntentService, WebStateService} from '@jeli/router';
+import { FoAuthService } from '@jeli/materials';
+import { ViewIntentService, WebStateService } from '@jeli/router';
 
 
 Service({
     DI: [
-        GlobalService,
+        AlertService,
         WebStateService,
-        DataService,
         FoAuthService,
         RealTimeService,
-        ViewIntentService
+        ViewIntentService,
+        ConfigService
     ]
 })
 
-export function AppEventService(globalService, webStateService, databaseService, foAuthService, realtimeService, viewIntent) {
+export function AppEventService(alertService, webStateService, foAuthService, realtimeService, viewIntent, configService) {
     this.httpInProgress = false;
-    this.userIsActive = foAuthService.userIsActive;
-    this.userData = foAuthService.userInfo;
     this.foAuthService = foAuthService;
-    this.databaseService = databaseService;
     this.webStateService = webStateService;
     this.realtimeService = realtimeService;
     this.viewIntent = viewIntent;
-    this.globalService = globalService;
+    this.alertService = alertService;
+    this.configService = configService;
 }
 
-AppEventService.prototype.disconnect = function(closeDB) {
-    this.foAuthService.disconnect().then(() => {
-        //log the user out from the server
-        if (closeDB) {
-            this.databaseService.closeDB(true);
-        }
-    });
+AppEventService.prototype.disconnect = function (destroySession) {
+    // update user configuration with sessionDetails
+    if (!destroySession) {
+        this.configService.updateConfiguration({
+            config: {
+                sessionDetails: {
+                    tokens: this.foAuthService.foTokenService.getAccessToken(),
+                    userInfo: this.foAuthService.foTokenService.getUserInfo(),
+                    userId: this.foAuthService.foTokenService.getPrincipal()
+                }
+            }
+        }).then(() => this.leaveSession());
+    } else {
+        this.foAuthService.disconnect().then(() => this.leaveSession())
+    }
+};
 
+AppEventService.prototype.leaveSession = function () {
+    // disconnect users
+    this.foAuthService.foTokenService.destroy();
+    this.viewIntent.destroyAllIntent();
     this.webStateService.go('login');
     this.realtimeService.destroyNotification();
-    this.viewIntent.destroyAllIntent();
-    this.destroySession();
-};
+}
 
-AppEventService.prototype.kickUserOutOfPage = function(content) {
-    this.globalService
+AppEventService.prototype.kickUserOutOfPage = function (content) {
+    this.alertService
         .confirm(content, [{
-            title: "Confirm",
+            label: "Confirm",
             class: "btn-primary",
-            $action: close => {
-                close();
-                this.webStateService.go("organisation");
-            }
+            action: () => this.webStateService.go('login')
         }], false);
-};
-
-AppEventService.prototype.destroySession = function(CB, errCB) {
-    this.databaseService.core.jQl('update -configuration -%data%', null, {
-        data: {
-            accessToken: {}
-        }
-    }).then(CB, errCB);
 };

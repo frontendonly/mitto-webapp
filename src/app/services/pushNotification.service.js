@@ -33,6 +33,7 @@ PushNotificationService.prototype.hasPermission = function(CB) {
 
 
 PushNotificationService.prototype.initializeLocalPush = function(CB) {
+    if (!window.cordova) return;
     this.localNotification = cordova.plugins.notification.local;
     this.localNotification.hasPermission(granted => {
         if (!granted) {

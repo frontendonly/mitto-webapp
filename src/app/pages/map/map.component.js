@@ -1,118 +1,45 @@
+import { AlertService } from "../../services/alert.service";
+import { GoogleMapService } from "../../services/google.map.service";
+import { ViewIntentService } from '@jeli/router';
+
 Element({
     selector: 'mitto-map',
-    DI: ["GlobalService", "googleMapService", "viewIntent"],
-    templateUrl: './map.html'
-}, MapComponent);
-
-function MapComponent(_, googleMapService, viewIntent) {
-    var mapObj = {},
-        isMapClicked = false;
-
-    this.shareLocation = function() {
-        // $model.closeActivity();
+    DI: [GoogleMapService, ViewIntentService, AlertService],
+    templateUrl: './map.html',
+    exposeView: true
+})
+export function MapElement(googleMapService, viewIntentService, alertService) {
+    this.mapObj = {};
+    this.isMapClicked = false;
+    this.alertService = alertService;
+    this.googleMapService = googleMapService;
+    this.viewIntentService = viewIntentService;
+    this.$activityParam = viewIntentService.getCurrentIntent().params;
+    this.showShareBtn = !this.$activityParam.geoLocation;
+    this.mapConfig = {
+        nearbyPlaces: false,
+        searchBox: null,
+        showInfoWindow: !this.showShareBtn,
+        styles: {
+            height: '95vh'
+        }
     };
 
-    this.searchLocation = function() {
-        var _this = this;
-        _.openModal({
-            content: "Searching...",
-            disableCloseBtn: true,
-            timeout: 3000
-        });
-
-        googleMapService
-            .geoCode({ address: this.searchFeild }, function(results, map) {
-                mapObj.latLng = results[0].position;
-                mapObj.address = this.searchFeild;
-                // Add a marker
-                googleMapService
-                    .setMarker(mapObj);
-
-            }, mapErrorHandler);
-    };
-
-    function mapErrorHandler(msg) {
-        _.alert(msg || "Error retrieving information", 1000);
+    if (this.showShareBtn){
+        this.mapConfig.searchBox = {
+            placeHolder: 'Enter a location',
+            styles: []
+        }
     }
+}
 
-    this.didInit = function() {
-        this.$activityParam = viewIntent.getCurrentIntent().params;
-        this.useFooter = this.$activityParam.useFooter;
-        if (this.$activityParam.geoLocation) {
-            googleMapService
-                .drawGeolocationWithData(document.querySelector('#map_canvas'), this.$activityParam.geoLocation, function(map) {
+MapElement.prototype.onPlaceSelected = function (event) {
+   this.selectedAddress = JSON.parse(JSON.stringify(event));
+    if (!this.showShareBtn) {
+        this.shareLocation(this.selectedAddress);
+    }
+}
 
-                }, mapErrorHandler);
-        } else {
-            setTimeout(function() {
-                googleMapService
-                    .getCurrentLocation(document.querySelector('#map_canvas'),
-                        function(location, map) {
-                            var infoWindowMsg = ["Your current location:\n"].join("\n");
-                            map.addMarker({
-                                'position': location.latLng
-                            }, function(marker) {
-                                googleMapService
-                                    .geoCode({ position: location.latLng }, function(results) {
-                                        if (results.length === 0) {
-                                            // Not found
-                                            return;
-                                        }
-                                        var address = [
-                                            results[0].subThoroughfare || "",
-                                            results[0].thoroughfare || "",
-                                            results[0].locality || "",
-                                            results[0].adminArea || "",
-                                            results[0].postalCode || "",
-                                            results[0].country || ""
-                                        ].join(", ");
-
-                                        mapObj.address = address;
-                                        googleMapService
-                                            .showMarkerInfo(marker, address);
-                                    }, mapErrorHandler);
-
-                                /**
-                                 * add event to marker
-                                 */
-                                marker.on(plugin.google.maps.event.MARKER_CLICK, function() {
-                                    locationSelected(location.latLng)
-                                });
-                                /**
-                                 * animate  marker
-                                 */
-                                map.animateCamera({
-                                    target: location.latLng,
-                                    zoom: 16
-                                }, function() {
-                                    marker.showInfoWindow();
-                                });
-                            });
-
-                            /**
-                             * add event
-                             */
-                            map.on(window.plugin.google.maps.event.MAP_CLICK, locationSelected);
-
-                            function locationSelected(latLng) {
-                                mapObj.latLng = latLng;
-                                isMapClicked = true;
-                                if (!_this.$activityParam.useFooter) {
-                                    _this.shareLocation();
-                                }
-                            }
-                        },
-                        mapErrorHandler);
-            }, 100);
-        }
-    };
-
-    this.viewDidDestroy = function() {
-        // $rootModel.showSidebar = true;
-        googleMapService.cleanUp();
-        if (isMapClicked) {
-            googleMapService.event.broadcast('map.close', [mapObj]);
-            googleMapService.event.destroy('map.close');
-        }
-    };
+MapElement.prototype.shareLocation = function(){
+    this.viewIntentService.closeIntent(this.selectedAddress);
 }

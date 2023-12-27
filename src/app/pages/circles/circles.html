@@ -1,23 +1,24 @@
-<activity-nav-bar {page-title}="labels.title"></activity-nav-bar>
-<div class="page-content section clearfix circles">
-  <div class="row no-mgn smallSearchContainer" *if="isMatchView && circleData.length">
-    <div class="col s12 mtm">
-      <input type="search" placeholder="Search" class="mbs" :filter-box="filter-name">
-    </div>
+<activity-nav-bar {pageTitle}="labels.title"></activity-nav-bar>
+<div class="page-content p-2 clearfix circles">
+  <div class="row m-0 smallSearchContainer" *if="isMatchView && circleData.length">
+    <input type="search" placeholder="Search" class="form-control mb-2 rounded-0" :filterBox="filter-name">
   </div>
-  <subscription-bar {user-info} @on-validate="subscriptionCheck($event)" *if="circleData.length"></subscription-bar>
-  <div class="bnPlayMaker" *if="!circleData.length">
-    <div class="card-panel blue lighten-2 center">
+  <subscription-bar {userInfo} @onValidate="subscriptionCheck($event)"
+    *if="circleData.length; else as errorTemplate"></subscription-bar>
+  <div class="row my-3" @click-delegate:a="open(circle.inf)">
+    <a class="col-4 link-underline link-underline-opacity-0 text-dark" *for="circle of circleData; idx=index"
+      attr-filter-name="circle.inf.name">
+      <div dimension="100x100" setAsBackground="true" fallBack="true" {:imgResolver}="circle.inf.profileImage"
+        class="circle rounded-circle" {isBlurr}="!canViewInfo" blurEffect="3"></div>
+      <div class="text-center fw-bold text-truncate" *if="canViewInfo">${:circle.inf.name}</div>
+    </a>
+  </div>
+</div>
+
+<j-template #errorTemplate>
+  <div class="bnPlayMaker d-flex align-items-center">
+    <div class="alert alert-info col-12">
       <span class="white-text">${:labels.error}</span>
     </div>
   </div>
-
-  <div class="section row">
-    <div class="col s4 m2" *for="(idx,circle) in circleData" filter-name="${:circle.inf.name.toLowerCase()}" @click="open(circle.inf)">
-      <div dimension="100x100" set-as-background="true" fallback="true" {:imgResolver}="circle.inf.profileImage" class="circle" {is-blurr}="blurImage()" blur-effect="3"></div>
-      <div class="center-align fwb truncate" *if="canViewInfo()">${:circle.inf.name}</div>
-
-    </div>
-  </div>
-
-</div>
+</j-template>

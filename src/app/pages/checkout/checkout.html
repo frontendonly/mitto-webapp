@@ -1,59 +1,17 @@
-<activity-nav-bar page-title="Checkout"></activity-nav-bar>
-<div class="page-content section clearfix">
-  <div class="row pal">
-    <div class="pam">
-      <h6 class="center">${param.description}</h6>
-    </div>
-    <div class="red-text">
-      <h6>${errorMessage}</h6>
-    </div>
-    <j-fragment *if="!paymentProcessing else paymentProcessing" {:form-control}="cardAuthControl">
-      <div class="input-field col s12">
-        <input type="text" name="cardNumber" id="cardNumber" :form-field="number" class="validate" :form-materialize/>
-        <label for="cardNumber">Card Number</label>
-      </div>
-
-      <div class="input-field col s12">
-        <input type="text" name="nameOnCard" id="nameOnCard" :form-field="name" class="validate" :form-materialize />
-        <label for="nameOnCard">Name on card</label>
-      </div>
-
-
-      <div class="col s12">
-        <div class="row">
-          <label>Expiry date</label>
-          <div class="row">
-            <div class="input-field col s4">
-              <input type="text" id="expiryMonth" :form-field="expiration_month" class="validate" :form-materialize/>
-              <label for="expiryMonth">Month:</label>
-            </div>
-            <div class="input-field col s4">
-              <input type="text" id="expiryYear" :form-field="expiration_year" class="validate" :form-materialize/>
-              <label for="expiryYear">Year:</label>
-            </div>
-            <div class="input-field col s4">
-              <input type="text" id="securityCode" :form-field="security_code" class="validate" :form-materialize/>
-              <label for="securityCode">Security code</label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col s12">
-        <button class="btn btn-primary col s12" @click="onCheckout()" :disabled="!cardAuthControl.valid">Checkout ${param.currency}${param.amount | number}</button>
-      </div>
-    </j-fragment>
-
-    <j-template #payment-processing>
-      <div class="bnPlayMaker">
-        <h5 class="center" *if="!paymentSuccessful">Payment Processing....</h5>
-        <j-fragment *if="paymentSuccessful">
-          <div class="card-panel  blue lighten-3 center">
-            <h6>
-              Payment was successful, a copy of this payment is sent to your email.
-            </h6>
-          </div>
-        </j-fragment>
-      </div>
-    </j-template>
+<activity-nav-bar pageTitle="Checkout"></activity-nav-bar>
+<div class="p-3 bnPlayMaker d-flex align-items-center">
+  <div class="col-12">
+    <h6 class="text-center">${param.description}</h6>
+    <div class="alert alert-danger" *if="errorMessage">${errorMessage}</div>
+    <fo-payment-methods {name}="foAuthService.userInfo.fullname" {token} canMakePayment="true"
+      @onPaymentValidation="processPayment($event)" regenerateToken="true"
+      *if="!paymentProcessing; else as paymentProcessing"></fo-payment-methods>
   </div>
 </div>
+
+<j-template #paymentProcessing>
+  <h5 class="center" *if="!paymentSuccessful">Payment Processing....</h5>
+  <div class="alert alert-info" *if="paymentSuccessful">
+    Payment was successful, a copy of this payment is sent to your email.
+  </div>
+</j-template>

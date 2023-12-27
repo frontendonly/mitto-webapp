@@ -1,37 +1,38 @@
-<div class="center">
+<div class="text-center">
   <h6>Become a Premium Member</h6>
   <small>More information and greater control of your privacy.</small>
-  <h5 class="center">Pricing</h5>
+  <h5>Pricing</h5>
   <div>Non-recurring one time pricing</div>
 </div>
-<ul class="collection no-border" *if="currencyLoaded">
-  <li class="collection-item" *for="sub in subscriptions">
+<ul class="list-group my-3 border-0" *if="currencyLoaded" @click-delegate:a="purchase(sub)">
+  <li class="list-group-item" *for="sub of subscriptions">
     <div class="row no-mgn">
-      <div class="col s3">${:sub.limit}</div>
-      <div class="col s6">
+      <div class="col-3">${:sub.limit}</div>
+      <div class="col-6">
         ${:currency}
         <strong>${sub.amount | money:currency}</strong>
-        <strike class="red-text">${:sub.save | money:currency}</strike>
+        <span class="text-decoration-line-through text-danger">${:sub.save | money:currency}</span>
       </div>
-      <div class="col s3" @click="purchase(sub)"><span class="right  blue-text">Buy</span></div>
+      <div class="col-3"><a class="btn btn-outline-primary btn-sm float-end">Buy</a></div>
     </div>
   </li>
 </ul>
-<div class="card-panel mrm mlm blue lighten-3 center" *if="!currencyLoaded">
+<div class="alert alert-info card-panel mx-2" *if="!currencyLoaded">
   <span>Subscription processing error, please try again later.</span>
 </div>
 
 <div class="row mtl" *if="countdown">
   <h6>You have exceeded your limit, please wait...</h6>
-  <h4 class="center grey-text" :count-down time="countDown">${countdown | timeAgo}</h4>
+  <!-- <h4 class="center grey-text" :count-down time="countDown">${countdown | timeAgo}</h4> -->
 </div>
 
-<div class="row mtl">
+<div class="mt-4">
   <h6>Refund Policy</h6>
-  <div class="well">
-    <small class="grey-text">
-            Membership may be cancelled by the Member within 7 days of paying the Subsciption Fee, at which point the Member shall receive a full refund of the Subscription Fee.
-            <span class="red-text">Doesn't apply to 7 or 3days subscriptions.</span>
-        </small>
+  <div class="text-bg-light p-4">
+    <small>
+      Membership may be cancelled by the Member within 7 days of paying the Subsciption Fee, at which point the Member
+      shall receive a full refund of the Subscription Fee.
+      <span class="text-danger">Doesn't apply to 7 or 3days subscriptions.</span>
+    </small>
   </div>
 </div>

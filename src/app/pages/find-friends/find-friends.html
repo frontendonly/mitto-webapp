@@ -1,58 +1,32 @@
-<activity-nav-bar page-title="Add Friends"></activity-nav-bar>
-<div class="page-content clearfix">
-  <div class="section">
-    <div class="row">
-      <form>
-        <div class="col s3">
-          <p>
-            <label for="username">
-                <input type="radio" :hide="true" :model="search.type" value="username" id="username" name="type" />
-                <span>Id</span>
-            </label>
-          </p>
-        </div>
-        <div class="col s4">
-          <p>
-            <label for="mobile">
-                <input type="radio" :hide="true" :model="search.type" id="mobile" value="mobile" name="type" />
-                <span>Mobile</span>
-            </label>
-          </p>
-        </div>
-      </form>
+<activity-nav-bar pageTitle="Add Friends"></activity-nav-bar>
+<div class="p-3 clearfix">
+  <div class="section" {:formControl}="searchForm">
+    <fo-radio-button label="Search by:" name="type">
+      <radio-item label="Id" value="username"></radio-item>
+      <radio-item label="Mobile" value="mobile"></radio-item>
+    </fo-radio-button>
+    <div class="input-group my-3">
+      <span class="input-group-text"><i class="fa blue-text fa-2x prefix"
+          {:jClass}="(searchForm.value.type == 'username' ? 'bi-person':'bi-phone-fill')"></i></span>
+      <input type="text" class="form-control" :formField="searchValue"
+        {placeholder}="'Enter friend\'s '+ searchForm.value.type">
+      <button class="btn btn-outline-primary" @click="searchUsers()" *if="!searchRestricted"><i
+          class="bi-search"></i></button>
     </div>
   </div>
-  <div class="section ptn">
-    <div class="row mbs">
-      <div class="col s2 mtm">
-        <i class="fa blue-text fa-2x prefix" :class="(search.type == 'username' ? 'fa-user':'fa-mobile-alt')"></i>
-      </div>
-      <div class="input-field col s10 mtn">
-        <input type="text" class="validate" :model="search.field" :form-materialize id="searchField">
-        <label for="searchField">Enter friend's ${search.type}</label>
-      </div>
+  <div class="col-12">
+    <h6 *if="searchRestricted">You have exceeded you search limit, please wait... <br><small
+        class="text-danger">${searchRestriction.timeout |
+        timeAgo}</small>
+    </h6>
+    <div *if="searchMessage && !searchRestricted" class="border rounded text-bg-light p-2 text-center">
+      <h6 class="m-0">${searchMessage}</h6>
     </div>
-    <div class="row">
-      <div class="col s12 ">
-        <button class="btn btnsubmit right" @click="searchUsers()" :show="!search.restriction">Search</button>
-      </div>
+    <div class="mx-auto my-3 col-4" *if="searchResults">
+      <a class="link-underline link-underline-opacity-0 text-dark" openIntent="profile" {params}="{userInfo: searchResults}">
+        <div dimension="100x100" setAsBackground="true" fallback="true" {:imgResolver}="searchResults.profileImage"
+          class="rounded-circle"></div>
+        <div class="text-center fw-bold text-truncate" *if="!canViewInfo">${:searchResults.name}</div>
+      </a>
     </div>
   </div>
-  <div class="col s12">
-    <div *if="search.restriction" class="pam uiCenterError">
-      <h6>You have exceeded you search limit, please wait... <br><small class="red-text">${search.timeout | timeAgo}</small></h6>
-    </div>
-    <ul class="collection no-border">
-      <li *if="searchMessage && !search.restriction" class="pam uiCenterError">
-        <h6>${searchMessage}</h6>
-      </li>
-      <li class="collection-item avatar" *for="user in search.results">
-        <a :openIntent="profile:user">
-          <img {:imgResolver}="user.profileImage" klass="circle" fallback="true" {gender}="user.gender" />
-          <h6 class="fwb title">${user.name}</h6>
-          <p class="truncate">${user.description}</p>
-        </a>
-      </li>
-    </ul>
-  </div>
-</div>

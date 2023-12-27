@@ -1,133 +1,114 @@
+import { AlertService } from "../../services/alert.service";
+import { ChatService } from "../../services/chat.service";
+import { DataService } from "../../services/data.service";
+import { ViewIntentService } from '@jeli/router';
+
 Element({
     selector: 'mitto-message',
-    DI: ['viewIntent', "jFlirtDataService", "jChatService", "GlobalService"],
+    DI: [ViewIntentService, DataService, ChatService, AlertService, 'changeDetector?'],
     templateUrl: './message.html',
-    styleUrl: './message.css'
-}, MessageComponent);
-
-function MessageComponent(viewIntent, jFlirtDataService, jChatService, _) {
+    styleUrl: './message.scss',
+    exposeView: true
+})
+export function MessageElement(viewIntent, dataService, chatService, alertService, changeDetector) {
     this.isLoading = true;
+    this.viewIntent = viewIntent;
+    this.dataService = dataService;
+    this.chatService = chatService;
+    this.alertService = alertService;
+    this.changeDetector = changeDetector;
     this.messages = [];
     this.confirmationState = false;
-    this.didInit = function() {
-        this.user = viewIntent.getCurrentIntent().params;
-        this.loadMessages();
-    }
+    this.user = viewIntent.getCurrentIntent().params;
+}
 
-    this.loadMessages = function(reload) {
-        var _this = this;
-        jChatService.getAllMessages(function(messages) {
-            _this.buildMessages(messages, reload);
-            _this.isLoading = false;
+MessageElement.prototype.didInit = function () {
+    this.loadMessages();
+}
+
+MessageElement.prototype.loadMessages = function (reload) {
+    this.chatService.getAllMessages(this.user.uid)
+        .then(response => {
+            this.isLoading = false;
+            this.messages = response.getResult();
+            this.changeDetector.detectChanges();
         });
-    };
+};
 
-    this.buildMessages = function(messages) {
-        var _this = this;
-        //this.messages = [];
-        messages.forEach(function(item) {
-            var rid = item.sender;
-            if ($isEqual(item.sender, _this.user.uid)) {
-                rid = item.receiver;
+MessageElement.prototype.openConversation = function (idx) {
+    var item = this.messages[idx];
+    // set message to read
+    item.status = "read";
+    this.viewIntent.openIntent('chat', {
+        rid: item.rid,
+        name: item.name,
+        image: item.image,
+        sid: item.sid
+    });
+};
+
+MessageElement.prototype.isUnread = function (item) {
+    return (!(item.sid == this.user.uid) && (item.status == 'unread')) ? 'active' : '';
+};
+
+MessageElement.prototype.deleteMessage = function (idx) {
+    this.confirmationState = true;
+    this.alertService.openModal({
+        title: 'Delete Action',
+        template: '<p>All conversation will be deleted. Click on confirm to proceed.</p>',
+        modalStyle: 'modal-dialog-centered',
+        showCloseBtn: true,
+        buttons: [{
+            label: "Confirm",
+            dismiss: true,
+            class: 'btn btn-primary',
+            action: () => this._deleteMessage(idx)
+        }]
+    });
+};
+
+MessageElement.prototype._deleteMessage = function (idx) {
+    var item = this.messages[idx];
+    this.chatService.deleteMessages([{
+        receiver: item.rid,
+        sender: item.sid
+    }, {
+        receiver: item.sid,
+        sender: item.rid
+    }]).then(() => {
+        this.messages.splice(idx, 1);
+        this.changeDetector.onlySelf();
+    }, () => this.alertService.alert('Unable to delete messages.'));
+}
+
+MessageElement.prototype.reloadPage = function () {
+    this.messages = [];
+    this.loadMessages(true);
+};
+
+MessageElement.prototype.onSwipeEvent = function (event, idx) {
+    var actions = {
+        end: () => {
+            // click state
+            event.target.nativeElement.removeAttribute('style');
+            this.swipeThredshod = false;
+            if (!event.direction) {
+                this.openConversation(idx);
             }
-
-            jFlirtDataService
-                .getUserInfo({ uid: rid })
-                .then(function(res) {
-                    if (_.isBlockedUser(res, _this.user)) {
-                        return;
-                    }
-
-                    _this.messages.push({
-                        name: res.name,
-                        image: res.profileImage,
-                        rid: rid,
-                        sid: _this.user.uid,
-                        content: item.content,
-                        attachments: item.attachments,
-                        type: item.type,
-                        status: item.status
-                    });
-                });
-
-        });
-    };
-
-    this.openConversation = function(idx) {
-        var item = this.messages[idx];
-        // set message to read
-        item.status = "read";
-        viewIntent.openIntent('chat', {
-            rid: item.rid,
-            name: item.name,
-            image: item.image
-        });
-    };
-
-    this.isUnread = function(item) {
-        return (!$isEqual(item.sid, _this.user.uid) && $isEqual(item.status, "unread")) ? "active" : "";
-    };
-
-    this.deleteMessage = function(idx) {
-        var _this = this;
-        var item = this.messages[idx];
-        this.confirmationState = true;
-        _.openModal({
-            title: 'Delete Action',
-            template: '<p>All conversation will be deleted. Click on confirm to proceed.</p>',
-            onClose: function() {
-                _this.confirmationState = false;
-            },
-            showCloseBtn: true,
-            buttons: [{
-                title: "Confirm",
-                $action: function(closeModal) {
-                    closeModal();
-                    _this.confirmationState = false;
-                    jChatService.deleteMessages({
-                        query: [{
-                            receiver: item.rid,
-                            sender: item.sid
-                        }, {
-                            receiver: item.sid,
-                            sender: item.rid
-                        }]
-                    }, function(deleted) {
-                        if (deleted) {
-                            _this.messages.splice(idx, 1);
-                        } else {
-                            _.alert("Unable to delete messages.");
-                        }
-                    });
-                }
-            }]
-        });
-    };
-
-    this.reloadPage = function() {
-        this.messages = [];
-        this.loadMessages(true);
-    };
-
-    this.onSwipeEvent = function(event, idx) {
-        event.preventDefault();
-        switch (event.value.state) {
-            case ('end'):
-                // click state
-                if (!event.value.direction) {
-                    this.openConversation(idx);
+        },
+        move: () => {
+            var isLeftDir = ('left' == event.direction);
+            event.target.nativeElement.style[isLeftDir ? 'right' : 'left'] = event.distance + "px";
+            if (event.distance > 100 && !this.swipeThredshod) {
+                this.swipeThredshod = true;
+                if (isLeftDir) {
+                    this.deleteMessage(idx);
                 } else {
-                    event.value.target.removeAttribute('style');
+                    this.openConversation(idx);
                 }
-                break;
-            case ('move'):
-                if ($isEqual('left', event.value.direction)) {
-                    event.value.target.style['right'] = event.value.distance + "px";
-                    if (event.value.distance > 100 && !this.confirmationState) {
-                        return this.deleteMessage(idx);
-                    }
-                }
-                break;
+            }
         }
     };
-}
+
+    actions[event.state]();
+};

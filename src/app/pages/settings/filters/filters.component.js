@@ -1,20 +1,23 @@
 import { appConfiguration } from "../../../services/app-configuration";
 import { DataService } from "../../../services/data.service";
 import {FormControlService} from '@jeli/form';
+import {ViewIntentService} from '@jeli/router';
+import { globalEvents } from "../../../services/utils";
 
 Element({
     selector: 'mitto-settings-filters',
     DI: [
         DataService,
-        'changeDetector?'
+        ViewIntentService
     ],
     templateUrl: './filters.html',
     style: '.collection{ border-radius: 0px; border-right: none; border-left: none; margin: 0 -0.75rem}',
     exposeView: true
 })
-export function FilterSettingsElement(dataService) {
+export function FilterSettingsElement(dataService, viewIntentService) {
     this.appConfig = appConfiguration;
     this.dataService = dataService;
+    this.userInfo = viewIntentService.getCurrentIntent().params;
     this.filterForm = new FormControlService({
         searchFilter: new FormControlService({
             interested: {
@@ -57,15 +60,7 @@ export function FilterSettingsElement(dataService) {
 }
 
 FilterSettingsElement.prototype.didInit = function() {
-    this.dataService
-        .getCurrentUserInfo()
-        .then(userInfo  => {
-            this.userInfo = userInfo;
-            this.filterForm.patchValue({
-                searchFilter: userInfo.searchFilter,
-                style: userInfo.style
-            });
-        });
+    this.filterForm.patchValue(this.userInfo);
 }
 
 FilterSettingsElement.prototype.selectInterested = function(val) {
@@ -80,10 +75,7 @@ FilterSettingsElement.prototype.setStyle = function(style) {
 
 FilterSettingsElement.prototype.saveSettings = function() {
     if (!this.filterForm.touched) return;
-    var value = this.filterForm.value;
-    value.uid = this.userInfo.uid;
-    this.dataService.updateProfile(value, 'settings.filter')
-    .catch(() => {
-        this.errorMessage = "unable to update please try again later.";
-    });
+    Object.assign(this.userInfo, this.filterForm.value);
+    this.dataService.updateProfile(Object.assign({ uid: this.userInfo.uid}, this.filterForm.value))
+    .then(() => globalEvents.dispatch('settings.filter', this.filterForm.value));
 };

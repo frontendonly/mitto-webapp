@@ -1,34 +1,41 @@
+import {ViewIntentService} from '@jeli/router';
+import { CurrencyService } from '../../services/money';
+import {MODAL_INSTANCE} from '@jeli/materials';
+import { DatabaseService } from '../../services/database.service';
+
 Element({
     selector: 'mitto-subscription',
-    props: ['closeModal'],
-    DI: ['viewIntent', '$money', 'jDB', 'ElementRef'],
-    templateUrl: './subscription.html'
-}, MittoScubsriptionComponent);
-
-function MittoScubsriptionComponent(viewIntent, $money, jdb, elementRef) {
-    this.currency = $money.getCurrencies();
+    DI: [ViewIntentService, CurrencyService, DatabaseService, MODAL_INSTANCE],
+    templateUrl: './subscription.html',
+    exposeView: true
+})
+export function MittoScubsriptionElement(viewIntentService, currencyService, databaseService, modalInstance) {
+    this.modalInstance = modalInstance;
+    this.currencyService = currencyService;
+    this.viewIntentService = viewIntentService;
+    this.databaseService = databaseService;
+    this.modalInstance = modalInstance;
+    this.currency = currencyService.getCurrencies();
     this.currencyLoaded = false;
     this.subscriptions = [];
-
-    this.purchase = function(selected) {
-        this.closeModal();
-        viewIntent.openIntent('checkout', {
-            amount: $money.fx(selected.amount).to(this.currency),
-            currency: this.currency,
-            duration: selected.duration,
-            description: "Mitto subscription for (" + selected.limit + "). "
-        });
-    };
-
-    this.didInit = function() {
-        var _this = this;
-        jdb.tx.jQl('select -GET(packages) -configuration', {
-            onSuccess: function(res) {
-                _this.subscriptions = res.first().packages;
-                $money.load(function(isLoaded) {
-                    _this.currencyLoaded = isLoaded;
-                });
-            }
-        });
-    };
 }
+
+MittoScubsriptionElement.prototype.purchase = function(selected) {
+    this.modalInstance.close();
+    this.viewIntentService.openIntent('checkout', {
+        amount: this.currencyService.fx(selected.amount).to(this.currency),
+        currency: this.currency,
+        duration: selected.duration,
+        description: "Mitto subscription for (" + selected.limit + "). "
+    });
+};
+
+MittoScubsriptionElement.prototype.didInit = function() {
+    this.databaseService.core.jQl('select -GET(packages) -configuration')
+    .then((res) => {
+        this.subscriptions = res.first().packages;
+        this.currencyService.load((isLoaded) => {
+            this.currencyLoaded = isLoaded;
+        });
+    });
+};

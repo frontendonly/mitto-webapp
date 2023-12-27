@@ -1,108 +1,135 @@
+import { ViewIntentService } from '@jeli/router';
+import { FormControlService } from '@jeli/form';
+import { GlobalService } from '../../../services/globalservice.factory';
+import { DataService } from '../../../services/data.service';
+
 Element({
     selector: 'mitto-settings-privacy',
-    DI: ['viewIntent', "GlobalService", "jFlirtDataService", 'formControlService'],
-    templateUrl: './privacy.html'
-}, PrivacySettingsComponent);
+    DI: [ViewIntentService, GlobalService, DataService],
+    templateUrl: './privacy.html',
+    exposeView: true
+})
 
-function PrivacySettingsComponent(viewIntent, _, jFlirtDataService, formControlService) {
+export function PrivacySettingsElement(viewIntent, globalservice, dataService) {
     this.isPremiumUser = false;
+    this.viewIntent = viewIntent;
+    this.globalservice = globalservice;
+    this.dataService = dataService;
+    this.userInfo = this.viewIntent.getCurrentIntent().params;
     this.isTrial = true;
     this.form = [{
         id: "circles",
-        validators: {
-            required: true
-        },
         label: "Show my circles"
     }, {
         id: "mobile",
-        validators: {
-            required: true
-        },
         label: "Show my mobile"
     }, {
         id: "blurimage",
-        validators: {
-            required: true
-        },
         label: "Blur Image"
     }, {
         id: "available",
-        validators: {
-            required: true
-        },
-        label: "Visiblity"
+        label: "Hide your profile"
     }, {
         id: "addByMittoId",
-        validators: {
-            required: true
-        },
         label: "Allow others add you by Mitto ID"
     }, {
         id: "addByMobileNumber",
-        validators: {
-            required: true
-        },
         label: "Allow others add you by Mobile Number"
     }, {
         id: "age",
-        disabled: true,
-        validators: {
-            required: true
-        },
         label: "Show my age"
     }, {
         id: "location",
-        disabled: true,
-        validators: {
-            required: true
-        },
         label: "Show my location"
     }, {
         id: "pm",
-        disabled: true,
-        validators: {
-            required: true
-        },
         label: "Allow Private Message"
     }];
-    this.privacyForm = new formControlService({});
-    this.didInit = function() {
-        var _this = this;
-        this.userInfo = viewIntent.getCurrentIntent().params;
-        this.form.forEach(function(item) {
-            _this.privacyForm.addField(item.id, {
-                value: _this.userInfo.privacy[item.id],
-                disabled: item.disabled,
-                validators: item.validators
-            });
-        });
-    };
 
-    this.subscriptionCheck = function(event) {
-        var _this = this;
-        this.isTrial = event.value.isTrial;
-        this.isPremiumUser = event.value.isPremiumUser;
-        ['age', 'location', 'pm'].forEach(function(key) {
-            _this.privacyForm.getField(key).disabled = !event.value.isPremiumUser;
-        });
-    };
-
-    this.updateSettings = function() {
-        var _this = this;
-        if (!_this.privacyForm.touched) {
-            return;
-        }
-
-        jFlirtDataService.updateProfile({
-            privacy: _this.userInfo.privacy,
-            uid: _this.uid
-        }, {
-            onSuccess: function() {
-                _.$events.$broadcast('settings.privacy', _this.privacyForm.value);
-            },
-            onError: function() {
-                _.alert("unable to update please try again later.", 1000);
+    this.privacyForm = new FormControlService({
+        circles: {
+            value: this.userInfo.privacy.circles,
+            validators: {
+                required: true
             }
-        });
-    }
+        },
+        mobile: {
+            value: this.userInfo.privacy.mobile,
+            validators: {
+                required: true
+            }
+        },
+        blurimage: {
+            value: this.userInfo.privacy.blurimage,
+            validators: {
+                required: true
+            }
+        },
+        available: {
+            value: this.userInfo.privacy.available,
+            validators: {
+                required: true
+            }
+        },
+        addByMittoId: {
+            value: this.userInfo.privacy.addByMittoId,
+            validators: {
+                required: true
+            }
+        },
+        addByMobileNumber: {
+            value: this.userInfo.privacy.addByMobileNumber,
+            validators: {
+                required: true
+            }
+        },
+        age: {
+            value: this.userInfo.privacy.age,
+            disabled: true,
+            validators: {
+                required: true
+            }
+        },
+        location: {
+            value: this.userInfo.privacy.location,
+            disabled: true,
+            validators: {
+                required: true
+            }
+        },
+        pm: {
+            value: this.userInfo.privacy.pm,
+            disabled: true,
+            validators: {
+                required: true
+            }
+        }
+    });
+}
+
+PrivacySettingsElement.prototype.didInit = function () {
+}
+
+PrivacySettingsElement.prototype.subscriptionCheck = function (event) {
+    this.isTrial = event.isTrial;
+    this.isPremiumUser = event.isPremiumUser;
+    ['age', 'location', 'pm'].forEach(key => {
+        var field = this.privacyForm.getField(key);
+        if (this.isPremiumUser){
+            field.enable()
+        } else {
+            field.disable()
+        }
+    });
+};
+
+PrivacySettingsElement.prototype.updateSettings = function () {
+    if (!this.privacyForm.touched) return;
+    Object.assign(this.userInfo.privacy, this.privacyForm.value);
+    this.dataService.updateProfile({
+        privacy: this.userInfo.privacy,
+        uid: this.userInfo.uid
+    }).then(() => {
+        this.globalservice.events.dispatch('settings.privacy', this.privacyForm.value);
+    });
 }

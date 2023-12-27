@@ -1,11 +1,11 @@
+import { CurrencyService } from "./money";
+
 Service({
     name: 'money',
-    DI: ['$money']
-}, moneyFilterFn);
-
-
-function moneyFilterFn($money) {
+    DI: [CurrencyService]
+})
+export function MoneyFilterService(currencyService) {
     this.compile = function(amount, currency) {
-        return $money.fx(amount).to(currency);
+        return currencyService.fx(amount).to(currency);
     };
 }

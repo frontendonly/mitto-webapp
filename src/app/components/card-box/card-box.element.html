@@ -1,0 +1,22 @@
+<div class="clearfix card-box" {:jClass}="{loaded: isLoaded}">
+    <div class="cards" #cardContainer @click-delegate:a="cardButtonAction({ type: 'chat'})">
+        <div class="card small m-0" *for="user of data">
+            <div class="card-image bg-light text-center" :openIntent="profile" {params}="user"
+                {:imgResolver}="user.profileImage" setAsBackground="true" fallBack="true">
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">${:user.name} <span *if="user.privacy.age">, ${:user.age}</span>
+                    <a class="float-end" *if="user.privacy.pm"><i class="bi-envelope"></i></a>
+                </h5>
+                <div class="card-text">${:user.locationDiff[0] + ' ' + user.locationDiff[1]}</div>
+            </div>
+        </div>
+    </div>
+    <div class="action-buttons" *if="data.length" @click-delegate:button="cardButtonAction({ type: 'swipe', action: null, fromButton: true }, $event.target.id)">
+        <button type="button" id="decline"><i class="bi bi-person-fill-x decline"></i></button>
+        <button type="button" id="accept"><i class="bi bi-person-heart accept"></i></button>
+    </div>
+</div>
+<div *if="!data.length" class="d-flex bnPlayMaker align-items-center justify-content-center">
+    <h6 class="text-center alert alert-info">No users found please change filter. </h6>
+</div>

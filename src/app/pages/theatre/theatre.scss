@@ -1,0 +1,15 @@
+.uiTheatre {
+    background-color: #000;
+    position: relative;
+    top: 0;
+    height: 95vh;
+    width: 100vw;
+    .valign-wrapper {
+        height: 100%;
+        .loaderPanel {
+            position: fixed;
+            left: 45%;
+            top: 50%
+        }
+    }
+}

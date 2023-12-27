@@ -1,102 +1,67 @@
-<activity-nav-bar page-title="Manage Coins">
-  <j-template #right-content data-has-pin>
-    <a *if="hasPin" :openIntent="settings.changePin"><span class="fa fa-key fa-lg"></span></a>
-  </j-template>
+<activity-nav-bar pageTitle="Manage Coins">
+  <a *if="hasPin" :openIntent="settings.changePin"><span class="fa fa-key fa-lg"></span></a>
 </activity-nav-bar>
-<div class="page-content clearfix">
-  <div class="row pam" *if="!totalCoins">
-    <div class="card-panel blue lighten-3">You have ${totalCoins} coins in your account, please refill.</div>
-  </div>
-  <div class="row no-mgn" *if="totalCoins && hasPin">
-    <div class="col s12 m6">
-      <ul class="collapsible" data-collapsible="accordion">
-        <li @click="setAccordion('history')">
-          <div class="collapsible-header"><span class="h4  blue-text"> History </span></div>
-          <div class="collapsible-body no-padd white" :style="{'display':showAccordion('history')}">
-            <ul class="collection">
-              <li class="collection-item" :class="setKlass(history.debit)" *for="history in historys">
-                <i class="fa fa-lg fa-arrow-circle-${!history.debit?'down green-text':'up red-text'}"></i> <strong> ${:history.name || 'Mitto'}</strong>
-                <small class="ecg"> ${:history.date | timeAgo}</small>
-                <span class="right">${:history.amount}</span>
-              </li>
-            </ul>
-
-            <div class="pam" *if="!historys.length">
-              <div class="card-panel blue lighten-3">No transaction history.</div>
-            </div>
-          </div>
-        </li>
-      </ul>
-    </div>
-    <div class="col s12 m6">
-      <ul class="collapsible" data-collapsible="accordion">
-        <li>
-          <div class="collapsible-header" @click="setAccordion('transfer')">
-            <span class="h4 blue-text"> Transfer Coins</span>
-            <span class="col s6"><strong class="right">Balance: ${totalCoins}</strong></span>
-          </div>
-          <div class="collapsible-body pam white" :style="{display:showAccordion('transfer')}">
-            <div class="card-panel blue lighten-3" *if="transfer.error.length">
-              <div *for="err in transfer.error">${err}</div>
-            </div>
-            <div class="row">
-              <div class="input-field col s12">
-                <input type="number" :model="transfer.form.amount" class="" placeholder="Enter Amount:" name="amount" autocomplete="off" @blur="validator('amount')">
-              </div>
-              <div class="input-field col s12">
-                <input type="text" class="" @input="selectUser()" :model="transfer.form.user" placeholder="User:" autocomplete="off">
-                <ul class="collection">
-                  <li class="collection-item" *for="user in circleList" @click="addUser(user)">${:user.name}</li>
-                </ul>
-              </div>
-              <div class="input-field col s12">
-                <input type="password" :model="transfer.form.pin" autocomplete="off" class="" placeholder="Enter Pin" name="vPassword">
-              </div>
-              <div class="input-field col s12" *if="canTransfer()">
-                <button class="btn btn-primary btnsubmit right" @click="submit()"> Transfer </button>
-              </div>
-            </div>
-          </div>
-        </li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="row no-mgn">
-    <div class="col s12 m6">
-      <ul class="collapsible" data-collapsible="accordion" *if="!hasPin">
-        <li>
-          <div class="collapsible-body pam" :style="{display:showAccordion('resetPin')}">
-            <div class="card-panel blue lighten-3">Please enter a secure pin, you will need this for every transaction you make.</div>
-            <div class="row">
-              <div class="input-field col s12">
-                <input type="password" class="" placeholder="Enter Pin" :model="pinForm.newPin" autocomplete="off">
-              </div>
-              <div class="input-field col s12">
-                <input type="password" class="" placeholder="Re-enter Pin" :model="pinForm.verifyPin" autocomplete="off">
-              </div>
-              <div class="input-field col s12">
-                <div class="col s12">
-                  <button class="btn btn-primary btnsubmit right" :disabled="!pinForm.newPin || !pinForm.verifyPin || pinForm.newPin !== pinForm.verifyPin" @click="changePin()"> set Pin </button></div>
-              </div>
-            </div>
-          </div>
-        </li>
-      </ul>
-    </div>
-    <div class="col s12 m6" *if="hasPin">
-      <ul class="collapsible" data-collapsible="accordion">
-        <li>
-          <div class="collapsible-header" @click="setAccordion('buy')"><span class="h4 blue-text"> Buy Coins </span></div>
-          <div class="collapsible-body no-padd white" :style="{display:showAccordion('buy')}">
-            <div class="collection">
-              <a class="collection-item black-text" :class="{'blue':idx==selected}" @click="purchase(coin, idx)" *for="(idx,coin) in coinsPurchase">
-                ${coin.value} Coins <span class="right">${currency}${coin.amount | money:currency}</span>
-              </a>
-            </div>
-          </div>
-        </li>
-      </ul>
+<div class="page-content clearfix p-2" *if="hasPin; else as resetPinBody">
+  <div class="alert alert-info m-2" *if="!totalCoins">You have ${totalCoins} coins in your account, please refill.</div>
+  <div class="accordion" @click-delegate:button="selectedAccordionItem=item">
+    <div class="accordion-item" *for="item of accordionItems">
+      <div class="accordion-header"><button class="accordion-button" {:jClass}="selectedAccordionItem != item ? 'collapsed':''"> ${item | capitalize} </button></div>
+      <div class="accordion-body collapse p-0"  {:jClass}="selectedAccordionItem != item ? '':'show'">
+        <j-fragment {template}="item + 'Body'"></j-fragment>
+      </div>
     </div>
   </div>
 </div>
+
+<j-template #buyBody>
+  <div class="list-group list-group-flush" @click-delegate:a="purchase(coin, idx)">
+    <a class="list-group-item clearfix" {:jClass}="{'active':idx == selected}"
+      *for="coin of coinsPurchase; idx=index">
+      ${coin.value} Coins <span class="float-end fw-bolder">${currency}${coin.amount | money:currency}</span>
+    </a>
+  </div>
+</j-template>
+
+<j-template #transferBody>
+  <div class="bg-light p-3">
+    <h6>Balance: ${totalCoins} MTC</h6>
+    <input type="number" class="form-control mb-2" @{:model}="transfer.form.amount" placeholder="Enter Amount:"
+      name="amount" autocomplete="off" @blur="validator('amount')" min="1" {max}="totalCoins">
+    <fo-tag-list class="mb-2 d-block" @onTagSelected="onTagSelected($event)" {autoCompleteResult}="circleList" @onTagSearch="selectUser($event)" hideOnSelect="true"></fo-tag-list>
+    <input type="password" @{:model}="transfer.form.pin" autocomplete="off" placeholder="Enter Pin" name="vPassword"
+      class="form-control mb-2">
+    <div class="clearfix">
+      <button class="btn btn-primary float-end" {disabled}="!canTransfer || transfer.inProgress" @click="submitTransferRequest()"> Transfer Coin </button>
+    </div>
+    <div class="alert alert-danger mt-3" *if="transfer.error">${transfer.error}</div>
+  </div>
+</j-template>
+
+<j-template #historyBody>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item list-group-item-action" attr-class="history.debit?'active':''" *for="history of historys">
+      <i attr-class="(!history.debit?'bi-arrow-down-circle text-success':'bi-arrow-up-circle text-danger')"></i> <strong>
+        ${:history.name || 'Mitto'}</strong>
+      <small class="text-muted"> ${:history.date | timeAgo}</small>
+      <span class="float-end">${:history.amount} MTC</span>
+    </li>
+  </ul>
+  <div class="alert alert-danger" *if="!historys.length">No transaction history.</div>
+</j-template>
+
+<j-template #resetPinBody>
+  <div class="m-3 border p-2 rounded">
+    <div class="alert alert-info">Please enter a secure 6 pin digit, you will need this for every transaction you
+      make.
+    </div>
+    <input type="password" class="form-control mb-3" placeholder="Enter Pin" @{:model}="pinForm.newPin"
+      autocomplete="off">
+    <input type="password" class="form-control mb-3" placeholder="Re-enter Pin" @{:model}="pinForm.verifyPin"
+      autocomplete="off">
+    <div class="col-12 clearfix">
+      <button class="btn btn-primary float-end"
+        {disabled}="!(pinForm.newPin.length >= 4 && pinForm.newPin == pinForm.verifyPin)" @click="changePin()">
+        Set Pin </button>
+    </div>
+  </div>
+</j-template>

@@ -1,0 +1,91 @@
+.card-box {
+    border-top: 3px solid rgb(33, 150, 243);
+    background: var(--bs-primary-bg-subtle);
+    width: 100vw;
+    height: 88.5vh;
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    position: relative;
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+    .cards {
+        flex-grow: 1;
+        padding-top: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        z-index: 1;
+
+        .card {
+            display: inline-block;
+            width: 90vw;
+            max-width: 400px;
+            height: 70vh;
+            background: #FFFFFF;
+            padding-bottom: 40px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: absolute;
+            will-change: transform;
+            transition: all 0.3s ease-in-out;
+            cursor: -webkit-grab;
+            cursor: -moz-grab;
+            cursor: grab;
+        }
+
+        .moving.card {
+            transition: none;
+            cursor: -webkit-grabbing;
+            cursor: -moz-grabbing;
+            cursor: grabbing;
+          }
+    }
+
+    .action-buttons {
+        flex: 0 0 100px;
+        text-align: center;
+        padding-top: 20px;
+        button {
+            border-radius: 50%;
+            line-height: 60px;
+            width: 60px;
+            border: 0;
+            background: #FFFFFF;
+            display: inline-block;
+            margin: 0 8px;
+            i {
+                font-size: 32px;
+                vertical-align: middle;
+              }
+
+            .accept {
+                color: #FFACE4;
+            }
+            
+            .decline {
+                color: #CDD6DD;
+            }
+        }
+
+        button:focus {
+            outline: 0;
+          }
+      }
+
+    .moving.card {
+        transition: none;
+        cursor: -webkit-grabbing;
+        cursor: -moz-grabbing;
+        cursor: grabbing;
+    }
+
+    .no-image {
+        font-size: 14em;
+    }
+}
+
+.card-box.loaded {
+    opacity: 1;
+    display:flex;
+}

@@ -1,41 +1,41 @@
-Service({
-    name: 'webServiceInterceptor',
-    DI: ["GlobalService", "appEvent"]
-}, webServiceInterceptor);
+import { httpInProgress } from "./utils";
 
-function webServiceInterceptor(gs, appEvent) {
-    this.responseError = function(response) {
-        if ($inArray(response.status, [401, 400]) && this.isEnabled(response.path)) {
+Service({
+    DI: []
+})
+export function GlobalHttpInterceptor() {
+    this.resolve = function (request, next) {
+        this.requestState(request.url);
+        next(request)
+            .subscribe(response => this.responseState(response), response => this.responseState(response));
+    };
+
+    this.requestState = function (url) {
+        if (isEnabled(url)) {
+            httpInProgress.emit(true);
+        }
+    };
+
+    this.responseState = function (response) {
+        httpInProgress.emit(false);
+        if ([401, 400, 403].includes(response.status) && isEnabled(response.path)) {
             if (response.data && response.data.message) {
-                gs.alert(response.data.message);
+               // alertService.alert(response.data.message);
             }
         }
-
-        appEvent.httpInProgress = false;
         return response;
-    }
-
-    this.request = function(req) {
-        appEvent.httpInProgress = this.isEnabled(req.url);
-        return req;
-    }
-
-    this.responseSuccess = function(res) {
-        appEvent.httpInProgress = false;
-        return res;
     };
-}
 
-webServiceInterceptor.prototype.isEnabled = function(url) {
-    return ['/user/authorize',
-        '/user/reauthorize',
-        '/database/updates',
-        '/send/email',
-        '/user/register',
-        '/database/push',
-        'user/exists',
-        'application/api'
-    ].some(function(key) {
-        return $inArray(key, url);
-    });
-};
+
+    function isEnabled(url) {
+        return ![
+            '/user/authorize',
+            '/user/reauthorize',
+            '/database/updates',
+            '/send/email',
+            '/user/register',
+            '/database/push',
+            'user/exists',
+        ].some((key) => url.includes(key));
+    }
+}

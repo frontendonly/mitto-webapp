@@ -4,12 +4,8 @@ import { FileUploaderService } from "./file.service";
 import { PushNotificationService } from "./pushNotification.service";
 
 Service({
-    name: "$bnBOX",
     DI: [DatabaseService, BadgeService, FileUploaderService, PushNotificationService]
-});
-
-
-//Notification Box Function
+})
 export function RealTimeService(databaseService, badgeService, fileService, pushNotificationService) {
     this._id = null;
     this._polling;
@@ -164,7 +160,9 @@ RealTimeService.prototype.processResult = function(res) {
 };
 
 RealTimeService.prototype.destroyNotification = function() {
-    this.dbUpdateInstance.disconnect();
+    if (this.dbUpdateInstance) {
+        this.dbUpdateInstance.disconnect();
+    }
 };
 
 RealTimeService.prototype.checkImageUpdate = function(list) {

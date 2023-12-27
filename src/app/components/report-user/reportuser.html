@@ -1,68 +1,19 @@
-<div class="center">
-  <h5>Report ${reportData.name}</h5>
+<div class="text-center">
   <small>Tell us why you are sending this report.</small>
 </div>
-<div class="row mtl">
-  <div class="col s12">
-    <label>
-            <input type="radio" class="with-gap" :hide="true" :model="reportData.type" value="0"  name="type" />
-            <span class="black-text">Sexual harassment</span>
-        </label>
+<div class="p-3">
+  <fo-radio-button name="type" type="native" @onValueChanged="modalData.type=$event">
+    <radio-item value="0" label="Sexual harassment"></radio-item>
+    <radio-item value="1" label="Inappropriate Messages"></radio-item>
+    <radio-item value="2" label="Inappropriate Photos"></radio-item>
+    <radio-item value="3" label="User is underage"></radio-item>
+    <radio-item value="4" label="Spamming / adveritsement"></radio-item>
+    <radio-item value="5" label="Other harassment"></radio-item>
+    <radio-item value="6" label="Other"></radio-item>
+  </fo-radio-button>
+  <textarea data-length="120" @{:model}="modalData.other" *if="modalData.type > 4" class="form-control mt-3" placeholder="Enter other reasons"></textarea>
+  <div class="row mt-3">
+    <button class="btn btn-primary btnsubmit" @click="sendReport()" {disabled}="isSending">Send report</button>
   </div>
-</div>
-<div class="row">
-  <div class="col s12">
-    <label>
-                <input type="radio" class="with-gap" :hide="true" :model="reportData.type" value="1"  name="type" />
-                <span class="black-text">Inappropriate Messages</span>
-            </label>
-  </div>
-</div>
-<div class="row">
-  <div class="col s12">
-    <label>
-            <input type="radio" class="with-gap" :hide="true" :model="reportData.type" value="2"  name="type" />
-            <span class="black-text">Inappropriate Photos</span>
-        </label>
-  </div>
-</div>
-<div class="row">
-  <div class="col s12">
-    <label>
-            <input type="radio" class="with-gap" :hide="true"  :model="reportData.type" value="3"  name="type" />
-            <span class="black-text">User is underage</span>
-        </label>
-  </div>
-</div>
-<div class="row">
-  <div class="col s12">
-    <label for="spamming">
-            <input type="radio" class="with-gap" :hide="true" :model="reportData.type" value="4" id="spamming" name="type" />
-            <span class="black-text">Spamming / adveritsement</span>
-        </label>
-  </div>
-</div>
-<div class="row">
-  <div class="col s12">
-    <label for="otherharassment">
-            <input type="radio" class="with-gap" :hide="true"  :model="reportData.type" value="5" id="otherharassment" name="type" />
-            <span class="black-text">Other harassment</span>
-        </label>
-  </div>
-</div>
-<div class="row">
-  <div class="col s12">
-    <label for="other"> 
-            <input type="radio" class="with-gap"  :hide="true" :model="reportData.type" value="6" id="other" name="type" />
-            <span class="black-text">Other</span>
-    </label>
-  </div>
-</div>
-<div class="row" *if="reportData.type > 4">
-  <div class="input-field col s12">
-    <textarea data-length="120" :model="reportData.other" class="materialize-textarea" placeholder="Enter other reasons"></textarea>
-  </div>
-</div>
-<div class="row center">
-  <button class="btn btn-primary btnsubmit" @click="sendReport()" :hide="isSending">Send report</button>
+  <div class="alert alert-danger mt-3" *if="isError">Unable to file report, please try again later.</div>
 </div>

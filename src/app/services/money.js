@@ -1,61 +1,60 @@
+import { DatabaseService } from './database.service';
+import { geoServiceControl } from './utils';
+
 Service({
-    name: '$money',
-    DI: ['$http', 'jDB', 'jFlirtDataService', 'dateTimeFactory', 'GlobalService']
-}, moneyFN);
-/**
- * 
- * @param {*} $http 
- * @param {*} jdb 
- * @param {*} jFlirtDataService 
- * @param {*} dateTimeFactory 
- * @param {*} _ 
- */
-function moneyFN($http, jdb, jFlirtDataService, dateTimeFactory, _) {
-    var _data_,
-        base = 'USD';
+    name: 'CurrencyService',
+    DI: [DatabaseService]
+})
+export function CurrencyService(databaseService) {
+    this.data = null;
+    this.base = 'USD';
+    this.databaseService = databaseService;
     this.allCurrencies = require('../../cms/currency.json');
-    /**
+
+    Object.defineProperty(this, 'canLoadNewData', {
+        get: () => (!this.data || Date.now() > this.data.next_occurence)
+    });
+}
+
+/**
      * load Data
      */
-    this.load = function(cb) {
-        if (!_data_ || (_data_ && dateTimeFactory.$timeConverter(_data_.lastLoaded).days)) {
-            return jdb.tx.api("/currency/exchange", {
-                    base: base
-                })
-                .then(function(data) {
-                    if (data.result.success) {
-                        _data_ = data.result;
-                        cb(true);
-                    }
-                }, function() {
-                    cb(false);
-                });
-        }
-
-        cb(true);
+CurrencyService.prototype.load = function(cb) {
+    if (this.canLoadNewData) {
+        this.databaseService.core.api("/currency/exchange", { base: this.base })
+            .then(data => {
+                if (data.result.success) {
+                    this.data = data.result;
+                }
+                cb(data.result.success);
+            }, function() {
+                cb(false);
+            });
     }
 
-    this.getRates = function() {
-        return _data_.rates || {};
-    };
+    cb(true);
+}
 
-    this.currencyExists = function(cur) {
-        return _data_.rates.hasOwnProperty(cur) ? cur : base;
-    };
+CurrencyService.prototype.getRates = function() {
+    return this.data.rates || {};
+};
 
-    this.fx = function(amount) {
-        return {
-            to: function(cur) {
-                if (!_data_ || !_data_.rates.hasOwnProperty(cur)) {
-                    return amount;
-                }
+CurrencyService.prototype.currencyExists = function(cur) {
+    return this.data.rates.hasOwnProperty(cur) ? cur : this.base;
+};
 
-                return Math.ceil(_data_.rates[cur] * amount);
+CurrencyService.prototype.fx = function(amount) {
+    return {
+        to: cur => {
+            if (!this.data || !this.data.rates.hasOwnProperty(cur)) {
+                return amount;
             }
-        }
-    };
 
-    this.getCurrencies = function() {
-        return this.allCurrencies[_.geoServiceControl.country && _.geoServiceControl.country.short_name] || base;
-    };
+            return Math.ceil(this.data.rates[cur] * amount);
+        }
+    }
+};
+
+CurrencyService.prototype.getCurrencies = function() {
+    return this.allCurrencies[geoServiceControl.country && geoServiceControl.country.short_name] || this.base;
 }

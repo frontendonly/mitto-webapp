@@ -1,135 +1,115 @@
+import { ViewIntentService } from '@jeli/router';
+import { FormControlService } from '@jeli/form';
+import { DataService } from '../../../services/data.service';
+import { ActionSheet } from '../../../services/actionsheet';
+import { FileUploaderService } from '../../../services/file.service';
+import { globalEvents } from '../../../services/utils';
+
 Element({
     selector: 'mitto-settings-profile',
-    DI: ['viewIntent', "GlobalService", "jFlirtDataService", "$actionSheet", "$fileService", 'formControlService'],
-    templateUrl: './profile.html'
-}, ProfileSettingsComponent);
-
-function ProfileSettingsComponent(viewIntent, _, jFlirtDataService, $actionSheet, $fileService, formControlService) {
-    this.didInit = function() {
-        var userInfo = viewIntent.getCurrentIntent().params;
-        this.imageChanged = false;
-        this.editProfileForm = new formControlService({
-            username: {
-                value: userInfo.username,
-                disabled: true
-            },
-            name: {
-                value: userInfo.name,
-                validators: {
-                    required: true
-                }
-            },
-            description: {
-                value: userInfo.description
-            },
-            gender: {
-                value: userInfo.gender,
-                validators: {
-                    required: true
-                }
-            },
-            mobile: {
-                value: userInfo.mobile,
-                disabled: true,
-                validators: {
-                    required: true
-                }
-            },
-            location: {
-                value: userInfo.location,
-                validators: {
-                    required: true
-                }
-            },
-            profileImage: {
-                value: userInfo.profileImage
-            },
-            profileImageUpdate: {
-                value: userInfo.profileImageUpdate
-            },
-            uid: {
-                value: userInfo.uid
+    DI: [ViewIntentService, DataService, ActionSheet, FileUploaderService],
+    templateUrl: './profile.html',
+    exposeView: true
+})
+export function ProfileSettingsElement(viewIntent, dataService, actionSheet, fileService) {
+    this.userInfo = viewIntent.getCurrentIntent().params;
+    this.dataService = dataService;
+    this.actionSheet = actionSheet;
+    this.fileService = fileService;
+    this.imageChanged = false;
+    this.editProfileForm = new FormControlService({
+        username: {
+            value: this.userInfo.username,
+            disabled: true
+        },
+        name: {
+            value: this.userInfo.name,
+            validators: {
+                required: true
             }
-        });
-    }
-
-    this.updateSettings = function() {
-        if (!this.editProfileForm.touched || !this.editProfileForm.valid) {
-            return;
+        },
+        description: {
+            value: this.userInfo.description
+        },
+        gender: {
+            value: this.userInfo.gender,
+            validators: {
+                required: true
+            }
+        },
+        mobile: {
+            value: this.userInfo.mobile,
+            disabled: true,
+            validators: {
+                required: true
+            }
+        },
+        location: {
+            value: this.userInfo.location,
+            validators: {
+                required: true
+            }
+        },
+        profileImage: {
+            value: this.userInfo.profileImage
+        },
+        profileImageUpdate: {
+            value: this.userInfo.profileImageUpdate
+        },
+        uid: {
+            value: this.userInfo.uid
         }
-
-        jFlirtDataService.updateProfile(this.editProfileForm.value, {
-            onSuccess: function() {
-                _.$events.$broadcast('profile.on.update');
-            },
-            onError: function() {
-                _.alert("unable to update please try again later.", 1000);
-            }
-        });
-    };
-
-    this.fileSelector = function(type) {
-        var _this = this;
-        var uid = this.editProfileForm.value.uid;
-        _.InitializeCamera(type, function(dataURI) {
-            _this.fileUploadProcess = true;
-            var _fileName = "profile.jpg";
-            $fileService
-                .upload({
-                    type: "base64",
-                    file: dataURI,
-                    path: $fileService.getFilePath(uid),
-                    fileName: _fileName,
-                    sizes: ["100x100"]
-                })
-                .then(function(file) {
-                    _this.fileUploadProcess = false;
-                    if (file.result.done) {
-                        $fileService
-                            .writeFileToDevice({
-                                folderPath: $fileService.getFilePath(uid),
-                                filePath: file.result.path,
-                                file: dataURI,
-                                contentType: 'image/jpeg'
-                            }, function(response) {
-                                _this.patchImageValue($fileService.getFilePath(uid, file.result.path));
-                            });
-                    } else {
-                        _this.fileUploadProcess = false;
-                        _.alert("Error uploading your image try again", 1000);
-                    }
-                }, function() {
-                    _this.errorFileUpload();
-                });
-        });
-    };
-
-    this.errorFileUpload = function() {
-        console.log(arguments);
-    }
-
-    this.openImageMenu = function() {
-        var _this = this;
-        $actionSheet({
-            bottom: true,
-            buttonLabels: ['Open image browser', 'Take snapshot', 'Remove image']
-        }, function(idx) {
-            switch (idx) {
-                case (1):
-                    _this.fileSelector('SAVEDPHOTOALBUM');
-                    break;
-                case (2):
-                    _this.fileSelector('CAMERA');
-                    break;
-                case (3):
-                    _this.removeImage();
-                    break;
-            }
-        });
-    }
+    });
 }
 
-ProfileSettingsComponent.prototype.patchImageValue = function(value) {
+ProfileSettingsElement.prototype.updateSettings = function () {
+    if (!this.editProfileForm.touched || !this.editProfileForm.valid) {
+        return;
+    }
+
+    this.dataService.updateProfile(this.editProfileForm.value).then(() => {
+        globalEvents.dispatch('profile.on.update');
+    });
+};
+
+ProfileSettingsElement.prototype.fileSelector = function (type) {
+    var uid = this.editProfileForm.value.uid;
+    this.fileService.filePicker(type)
+        .then(file => {
+            this.fileUploadProcess = true;
+            this.fileService
+                .upload({
+                    file: file.dataUri,
+                    path: this.fileService.getFilePath(uid),
+                    fileName: 'profile.' + file.mimeType,
+                    sizes: ['100x100'],
+                    replaceIfExists: true
+                }, true)
+                .then((res) => {
+                    this.fileUploadProcess = false;
+                    this.patchImageValue(this.fileService.getFilePath(uid, res.files[0].name));
+                }, (err) => this.errorFileUpload(err));
+        });
+};
+
+ProfileSettingsElement.prototype.errorFileUpload = function () {
+    console.log(arguments);
+}
+
+ProfileSettingsElement.prototype.openImageMenu = function () {
+    var actions = {
+        1: () => this.fileSelector('SAVEDPHOTOALBUM'),
+        2: () => this.fileSelector('CAMERA'),
+        3: () => this.removeImage()
+    };
+
+    this.actionSheet({
+        bottom: true,
+        buttonLabels: ['Open image browser', 'Take snapshot', 'Remove image']
+    }, idx => actions[idx]());
+}
+
+ProfileSettingsElement.prototype.patchImageValue = function (value) {
     var lastModified = +new Date;
     this.editProfileForm
         .patchValue({
@@ -140,12 +120,12 @@ ProfileSettingsComponent.prototype.patchImageValue = function(value) {
     this.editProfileForm.markAsTouched();
 };
 
-ProfileSettingsComponent.prototype.alertPremium = function() {
+ProfileSettingsElement.prototype.alertPremium = function () {
     if (!this.isPremiumUser) {
         this.subscription();
     }
 };
 
-ProfileSettingsComponent.prototype.removeImage = function() {
+ProfileSettingsElement.prototype.removeImage = function () {
     this.patchImageValue("");
 };

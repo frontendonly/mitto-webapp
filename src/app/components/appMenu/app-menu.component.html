@@ -1,70 +1,28 @@
-<div class="bnPlayMaker">
-  <div class="row">
-    <div class="col-4 center" :openIntent="visitors">
-      <span class="fa-stack fa-2x">
-                  <i class="fa fa-eye fa-stack-1x"></i>
-              </span> Visitors <span class="new badge red" *if="notif.visitors">${notif.visitors}</span>
+<div class="bnPlayMaker d-flex align-items-center" @click-delegate:a="onMenuClicked.emit(menu)">
+  <div class="col-12 px-3">
+    <div class="row mb-4">
+      <a class="col text-center link-underline link-underline-opacity-0 position-relative" *for="menu of menu.main">
+        <span class="d-block fs-1 mt-2"><i attr-class="'bi-'+menu.iconClass"></i></span>
+        ${menu.label} <span *if="notif[menu.badge]" class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger">
+          ${notif[menu.badge]}</span>
+      </a>
     </div>
-    <div class="col-4 center" :openIntent="likes">
-      <span class="fa-stack fa-2x">
-          <i class="fa fa-heart fa-stack-1x"></i>
-      </span> Likes <span class="new badge red" *if="notif.likes">${notif.likes}</span>
+    <hr/>
+    <div class="row gy-4">
+      <a class="col-4 text-center link-underline link-underline-opacity-0" *for="menu of menu.others">
+        <span class="d-block fs-1">
+          <i attr-class="'bi-' + menu.iconClass"></i>
+        </span> ${:menu.label} <span class="new badge red" *if="menu.hasLabel && notif.coins">${notif.coins}</span>
+      </a>
     </div>
-    <div class="col-4 center" :openIntent="interest">
-      <span class="fa-stack fa-2x">
-          <i class="fa fa-star fa-stack-1x"></i>
-      </span> Interest <span class="new badge red" *if="notif.favorites">${notif.favorites}</span>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-4 center" :openIntent="addFriends">
-      <span class="fa-stack fa-2x">
-          <i class="fa fa-user-plus fa-stack-1x"></i>
-      </span> Add Friends
-    </div>
-    <div class="col-4 center" :openIntent="manageCoins">
-      <span class="fa-stack fa-2x">
-          <i class="fa fa-coins fa-stack-1x"></i>
-      </span> Coins <span class="new badge red" *if="notif.coins">${notif.coins}</span>
-    </div>
-    <div class="col-4 center" :openIntent="settings.profile:userInfo">
-      <span class="fa-stack fa-2x">
-          <i class="fa fa-user-edit fa-stack-1x"></i>
-      </span> Profile
-    </div>
-    <div class="col-4 center" :openIntent="settings.privacy:userInfo">
-      <span class="fa-stack fa-2x">
-          <i class="fa fa-user-secret fa-stack-1x"></i>
-      </span> Privacy
-    </div>
-    <div class="col-4 center" :openIntent="blockedUsers:userInfo">
-      <span class="fa-stack fa-2x">
-          <i class="fa fa-user-slash fa-stack-1x"></i>
-      </span> Blocked Users
-    </div>
-  </div>
-</div>
-<div class="bottomMenu">
-  <div class="row">
-    <div class="col text-center" @click="logoutUser()">
-      <span class="fa-stack fa-lg blue-text">
-              <i class="fa fa-sign-out-alt fa-stack-1x"></i>
-          </span>Logout
-    </div>
-    <div class="col text-center" :openIntent="settings.changePassword:userInfo">
-      <span class="fa-stack fa-lg blue-text">
-              <i class="fa fa-key fa-stack-1x"></i>
-          </span>Change Password
-    </div>
-    <div class="col text-center" @click="hideAccount()">
-      <span class="fa-stack fa-lg  green-text">
-                <i class="fa fa-pause fa-stack-1x"></i>
-            </span>Pause Account
-    </div>
-    <div class="col text-center" @click="deleteAccount()">
-      <span class="fa-stack fa-lg red-text">
-                  <i class="fa fa-user-times fa-stack-1x"></i>
-              </span>Deactivate Account
+    <hr/>
+
+    <div class="row">
+      <a class="col text-center link-underline link-underline-opacity-0" *for="menu of menu.bottom">
+        <span class="d-block fs-1">
+          <i attr-class="'bi-' + menu.iconClass"></i>
+        </span> ${:menu.label}
+      </a>
     </div>
   </div>
 </div>

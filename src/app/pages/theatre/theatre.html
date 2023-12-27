@@ -1,18 +1,10 @@
 <activity-nav-bar></activity-nav-bar>
 <div class="page-content">
   <div class="uiTheatre">
-    <div class="valign-wrapper">
-      <div id="_timgPreview">
-        <img :src="controls.getCurrentImage()" alt="Image preview" width="100%" />
-      </div>
-      <div id="_showLoading" :show="isLoading">
-        <div class="fa fa-spin fa-circle-o-notch fa-2x white-text"></div>
-      </div>
-    </div>
-    <div *if="showComments" class="uiFotoBottomTheatrePanel">
-      <div class="pam acw">${comments}</div>
-      <div>
-        <ul class="uiFixedBottomMargin"></ul>
+    <div class="valign-wrapper d-flex align-items-center">
+      <img {src}="getCurrentImage()" {class}="{'d-none':isLoading}" alt="Image preview" width="100%" height="auto" />
+      <div class="loaderPanel" {class}="{'d-none':!isLoading}">
+        <fo-mini-loading size="md" klass="text-white"></fo-mini-loading>
       </div>
     </div>
   </div>

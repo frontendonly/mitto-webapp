@@ -1,59 +1,57 @@
-<activity-nav-bar page-title="" class="profile-header">
-  <j-template #right-content data-is-me data-is-blocked-user data-open-user-menu>
-    <a *if="!isMe && !isBlockedUser" @click="openUserMenu()"><span class="fa fa-ellipsis-v fa-lg"></span></a>
-  </j-template>
+<activity-nav-bar {pageTitle}="user.name" class="profile-header">
+  <a *if="!isMe && !isBlockedUser" @click="openUserMenu()"><span class="bi-three-dots-vertical navbar-brand m-0"></span></a>
 </activity-nav-bar>
-<div class="page-content clearfix profilePage">
-  <div class="card large mtn">
-    <div class="card-image center-align" {:imgResolver}="user.profileImage" {gender}="user.gender" set-as-background="true" @on-dispatcher="imageChangeDispatcher()">
-      <!-- <span @click="addCoverPhoto()" class="right fa fa-image pam fa-lg"></span> -->
-      <div class="user-info left-align">
-        <h5>${user.name}<span *if="user.privacy.age">, ${:CalculateAge(user.age, user.date)}</span></h5>
+<div class="clearfix profilePage">
+  <div class="card large border-0">
+    <div class="card-image bg-primary-subtle center-align position-relative" {:imgResolver}="user.profileImage"
+      {gender}="user.gender" setAsBackground="true" fallBack="true">
+      <div class="user-info">
+        <h5>${user.name} <span *if="user.privacy.age">, ${:CalculateAge(user.age, user.date)}</span></h5>
         <h6>${setFlirtCategory(user.style)} Flirt</h6>
       </div>
     </div>
-    <div class="card-content">
-      <h6 *if="user.location && user.privacy.location">Location:<span class="right">${:user.location}</span></h6>
-      <h6 *if="!isMe && user.privacy.location">${getLocationDiff()} away</h6>
-      <h6 *if="(user.privacy.mobile && user.mobile)">Mobile: <span class="right">${:user.mobile}</span></h6>
+    <div class="card-body">
+      <h6 *if="user.location && user.privacy.location">${:user.location}</h6>
+      <h6 *if="!isMe && user.privacy.location">${:getLocationDiff} away</h6>
+      <h6 *if="(user.privacy.mobile && user.mobile)">${:user.mobile}</h6>
       <p *if="user.description"> ${user.description}</p>
     </div>
   </div>
 
-  <div class="bottom-container">
-    <div class="row options" *if="!isMe && !isBlockedUser">
-      <div class="col s10">
-        <j-fragment *if="!isMatch">
-          <div class="col s6">
-            <a *if="!isMyRequest else isMyRequestTemplate" class="red pulse accent-3 btn-floating" @click="PerformTask(user,'like','isMyRequest')">
-              <i class="fa fa-heart fa-2x"></i>
-            </a>
-          </div>
-          <div class="col s6">
-            <a *if="!isMyFavorite else isMyFav" class="btn-floating blue accent-3" @click="PerformTask(user,'favorite','isMyFavorite')">
-              <i class="fa fa-star fa-2x"></i>
-            </a>
-          </div>
-        </j-fragment>
-      </div>
-      <div class="col s2" *if="user.privacy.pm">
-        <a class="btn-floating white" @click="openChatBox(user)"><i class="fa blue-text fa-envelope fa-2x"></i></a>
+  <div class="bottom-container p-3">
+    <div class="row" *if="!isMe && !isBlockedUser">
+      <j-fragment *if="!isMatch">
+        <div class="col text-center">
+          <a *if="!isMyRequest; else as isMyRequestTemplate" class="text-bg-danger  btn-floating"
+            @click="PerformTask(user,'like','isMyRequest')">
+            <i class="bi-heart fs-2"></i>
+          </a>
+        </div>
+        <div class="col text-center">
+          <a *if="!isMyFavorite; else as isMyFav" class="text-bg-warning btn-floating"
+            @click="PerformTask(user,'favorite','isMyFavorite')">
+            <i class="bi-star fs-2"></i>
+          </a>
+        </div>
+      </j-fragment>
+      <div class="col clearfix" *if="user.privacy.pm">
+        <a class="float-end btn-floating text-bg-primary text-center" @click="openChatBox(user)"><i
+            class="bi-envelope"></i></a>
       </div>
     </div>
-    <div class="row options" *if="isMe">
-      <div class="col s12">
-        <a :openIntent="settings.profile:user" class="right blue-text btn-floating btn-medium blue">
-          <i class="fa fa-user-edit"></i>
-        </a>
-      </div>
+    <div class="col-12" *if="isMe">
+      <a :openIntent="settings.profile" {params}="user"
+        class="text-center float-end text-bg-primary btn-floating btn-medium">
+        <i class="bi-pencil-square"></i>
+      </a>
     </div>
   </div>
 </div>
 
-<j-template #is-my-fav>
-  <span class="btn-floating yellow accent-3"><i class="fa fa-star fa-2x"></i></span>
+<j-template #isMyFav>
+  <span class="btn-floating bg-warning"><i class="bi-star fs-2"></i></span>
 </j-template>
 
-<j-template #is-my-request-template>
-  <a class="white btn-floating" @click="undoRequest()"><i class="fa fa-undo fa-2x red-text"></i></a>
+<j-template #isMyRequestTemplate>
+  <a class="bg-white btn-floating" @click="undoRequest()"><i class="fs-2 text-danger bi-heart"></i></a>
 </j-template>

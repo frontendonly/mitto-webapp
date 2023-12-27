@@ -1,11 +1,13 @@
 import { DatabaseService } from "./database.service";
+import { UploadService, base64ToFile, blobURL } from '@jeli/materials';
 import { noop } from "./utils";
 
 Service({
-    DI: [DatabaseService]
+    DI: [DatabaseService, UploadService]
 })
-export function FileUploaderService(databaseService) {
+export function FileUploaderService(databaseService, uploadService) {
     this.databaseService = databaseService;
+    this.uploadService = uploadService;
     this.fileCache = !window.cordova ? {} : null;
 }
 
@@ -13,8 +15,20 @@ export function FileUploaderService(databaseService) {
  * 
  * @param {*} options 
  */
-FileUploaderService.prototype.upload = function(options) {
-    return this.databaseService.core.api('/file/attachment', options);
+FileUploaderService.prototype.upload = function (options, saveImage) {
+    return this.uploadService.upload(options)
+        .then(res => {
+            if (saveImage && res.result.files) {
+                this.writeFileToDevice({
+                    folderPath: options.path,
+                    filePath: res.result.files[0].name,
+                    file: options.file,
+                    contentType: 'image/jpeg'
+                }, this.errorMsg('writeToDevice:', true));
+            }
+
+            return res.result;
+        });
 }
 
 /**
@@ -22,8 +36,8 @@ FileUploaderService.prototype.upload = function(options) {
  * @param {*} options 
  * @param {*} writable 
  */
-FileUploaderService.prototype.getFile = function(options, writable) {
-    return this.databaseService.core.api('/attachment', options);
+FileUploaderService.prototype.getFile = function (options, writable) {
+    return this.uploadService.getFile(options);
 }
 
 /**
@@ -31,7 +45,7 @@ FileUploaderService.prototype.getFile = function(options, writable) {
  * @param {*} path 
  * @param {*} handlers 
  */
-FileUploaderService.prototype.getImageFromDB = function(path, handlers) {
+FileUploaderService.prototype.getImageFromDB = function (path, handlers) {
     this.databaseService.core.jQl('select -image -_uploads_ -where(img= ' + path + ')', handlers);
 }
 
@@ -41,44 +55,15 @@ FileUploaderService.prototype.getImageFromDB = function(path, handlers) {
  * @param {*} path 
  */
 FileUploaderService.prototype.getFilePath = function (id, path) {
-    return [id, "/images/", path || ""].join('');
+    return this.uploadService.getPath(id, 'images', path || '');
 }
 
 /**
  * 
  * @param {*} filePath 
  */
-FileUploaderService.prototype.getNativePath = function(filePath) {
+FileUploaderService.prototype.getNativePath = function (filePath) {
     return (window.cordova ? cordova.file.dataDirectory : "") + (filePath || "");
-}
-
-/**
- * 
- * @param {*} b64Data 
- * @param {*} contentType 
- * @param {*} sliceSize 
- */
-FileUploaderService.prototype.b64toBlob =  function(b64Data, contentType, sliceSize) {
-    contentType = contentType || '';
-    sliceSize = sliceSize || 512;
-
-    var byteCharacters = atob(b64Data);
-    var byteArrays = [];
-
-    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-        var byteNumbers = new Array(slice.length);
-        for (var i = 0; i < slice.length; i++) {
-            byteNumbers[i] = slice.charCodeAt(i);
-        }
-
-        var byteArray = new Uint8Array(byteNumbers);
-
-        byteArrays.push(byteArray);
-    }
-
-    return new Blob(byteArrays, { type: contentType });
 }
 
 /**
@@ -86,19 +71,12 @@ FileUploaderService.prototype.b64toBlob =  function(b64Data, contentType, sliceS
  * @param {*} base64 
  * @param {*} mimeType 
  */
-FileUploaderService.prototype.toURL = function(base64, mimeType) {
-    var blob;
-    try {
-        blob = URL.createObjectURL(this.b64toBlob(base64.split(',')[1], mimeType));
-    } catch (e) {
-        blob = base64;
-    }
-
-    return blob;
+FileUploaderService.prototype.toURL = function (base64, mimeType) {
+    return blobURL(base64, mimeType);
 }
 
-FileUploaderService.prototype.errorMsg = function(msg, ret) {
-    var log = function(err) {
+FileUploaderService.prototype.errorMsg = function (msg, ret) {
+    var log = function (err) {
         console.log(ret, err);
     };
 
@@ -110,19 +88,28 @@ FileUploaderService.prototype.errorMsg = function(msg, ret) {
  * @param {*} options 
  * @param {*} CB 
  */
-FileUploaderService.prototype.writeFileToDevice = function(options, CB) {
-    if (!window.cordova) return CB({ success: -1 });
+FileUploaderService.prototype.writeFileToDevice = function (options, CB) {
+    if (!window.cordova) {
+        /**
+         * store and reference the cached file
+         */
+        if (this.fileCache) {
+            this.fileCache[options.folderPath + options.fileName] = options.file;
+        }
+
+        return CB({ success: -1 });
+    }
 
     this.createFolder(options.folderPath, (cPath) => {
         window.resolveLocalFileSystemURL(this.getNativePath(cPath), (dir) => {
             this.errorMsg("Access to the directory granted succesfully");
             dir.getFile(options.fileName, { create: true, exclusive: false }, (file) => {
                 this.errorMsg("File created succesfully.");
-                file.createWriter((fileWriter)  => {
+                file.createWriter((fileWriter) => {
                     this.errorMsg("Writing content to file");
-                    fileWriter.write(this.b64toBlob(options.file, options.contentType));
+                    fileWriter.write(base64ToFile(options.file, options.contentType));
                     CB({ success: 1 });
-                }, function() {
+                }, function () {
                     CB({ message: 'Unable to save file in path ' + options.folderPath, success: 0 });
                 });
             }, errorMsg("Unable to create file", true));
@@ -135,7 +122,7 @@ FileUploaderService.prototype.writeFileToDevice = function(options, CB) {
  * @param {*} folderPath 
  * @param {*} CB 
  */
-FileUploaderService.prototype.createFolder = function(folderPath, CB) {
+FileUploaderService.prototype.createFolder = function (folderPath, CB) {
     window.resolveLocalFileSystemURL(getNativePath(), (directoryEntry) => {
         var spltFolder = folderPath.split('/'),
             previous = "",
@@ -159,8 +146,8 @@ FileUploaderService.prototype.createFolder = function(folderPath, CB) {
  * 
  * @param {*} filePath 
  */
-FileUploaderService.prototype.fileExists = function(filePath) {
-    return new  Promise((resolve, reject) => {
+FileUploaderService.prototype.fileExists = function (filePath) {
+    return new Promise((resolve, reject) => {
         if (!window.cordova) {
             reject();
             return;
@@ -179,27 +166,20 @@ FileUploaderService.prototype.fileExists = function(filePath) {
  * @param {*} lastModified 
  * @param {*} forceDownload 
  */
-FileUploaderService.prototype.download = function(filePath, CB, fCB, lastModified, forceDownload) {
+FileUploaderService.prototype.download = function (filePath, CB, fCB, lastModified, forceDownload) {
     CB = CB || noop;
     var doDownload = () => {
         /**
          * available for use only on desktop
          */
         if (this.fileCache && this.fileCache[filePath] && !forceDownload) {
-            return CB(this.toURL(this.fileCache[filePath]));
+            return CB(blobURL(this.fileCache[filePath]));
         }
 
         this.getFile({ type: 'base64', filePath: filePath })
             .then(res => {
                 if (res.result.size) {
-                    /**
-                     * store and reference the cached file
-                     */
-                    if (this.fileCache) {
-                        this.fileCache[filePath] = res.result.file;
-                    }
-
-                    CB(this.toURL(res.result.file, res.result.mimeType));
+                    CB(blobURL(res.result.file, res.result.mimeType));
                     var fileSplit = filePath.split('/'),
                         fileName = fileSplit.pop();
                     this.writeFileToDevice({
@@ -231,7 +211,7 @@ FileUploaderService.prototype.download = function(filePath, CB, fCB, lastModifie
  * @param {*} filePath 
  * @param {*} CB 
  */
-FileUploaderService.prototype.removeFile  = function(filePath) {
+FileUploaderService.prototype.removeFile = function (filePath) {
     this.fileExists(filePath).then((fileEntry) => {
         fileEntry.remove();
     }, this.errorMsg('Unable to remove file', true));
@@ -243,8 +223,44 @@ FileUploaderService.prototype.removeFile  = function(filePath) {
  * @param {*} CBS 
  * @param {*} CBF 
  */
-FileUploaderService.prototype.saveImageToGallery = function(filePath, CBS, CBF) {
-    this.fileExists(filePath).then((fileEntry) => {
-        cordova.plugins.imagesaver.saveImageToGallery(fileEntry.toURL(), CBS, CBF);
-    }, CBF);
+FileUploaderService.prototype.saveImageToGallery = function (filePath) {
+    return new Promise((resolve, reject) => {
+        this.fileExists(filePath).then((fileEntry) => {
+            cordova.plugins.imagesaver.saveImageToGallery(fileEntry.toURL(), resolve, reject);
+        }, reject);
+    })
+}
+
+FileUploaderService.prototype.filePicker = function (type) {
+    var camPlugin = navigator['camera'];
+    return new Promise((resolve, reject) => {
+        if (camPlugin) {
+            /**
+             * initialize the camera
+             */
+            camPlugin.getPicture(dataUrI => resolve({ dataUri: 'data:image/jpeg;base64,' + dataUrI, mimeType: 'jpeg' }), reject, {
+                quality: 100,
+                destinationType: Camera.DestinationType.DATA_URL,
+                sourceType: Camera.PictureSourceType[type],
+                encodingType: Camera.EncodingType.JPEG,
+                mediaType: Camera.MediaType.PICTURE,
+                targetWidth: 720,
+                targetHeight: 540,
+                saveToPhotoAlbum: false,
+                allowEdit: false,
+                correctOrientation: true //Corrects Android orientation quirks
+            });
+        } else {
+            this.uploadService.htmlFilePicker(false, null, processed => {
+                var file = processed.readyForUpload[0];
+                var reader = new FileReader();
+                var mimeType = file.name.substr(file.name.lastIndexOf('.') + 1);
+                // Read file into memory as UTF-8      
+                reader.readAsDataURL(file);
+                // Handle errors load
+                reader.onload = b4file => resolve({ dataUri: b4file.target.result, mimeType });
+                reader.onerror = reject;
+            }, true);
+        }
+    })
 }

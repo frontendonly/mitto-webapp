@@ -1,26 +1,18 @@
-<activity-nav-bar page-title="Change Pin"></activity-nav-bar>
-<div class="page-content clearfix">
-  <div class="row pal">
-    <j-fragment *if="hasPin else noPinMessage">
-      <div class="input-field col s12">
-        <input type="password" :model="pinForm.oldPin" autocomplete="off" :form-materialize>
-        <label for="oldPin">Enter old Pin</label>
-      </div>
-      <div class="input-field col s12">
-        <input type="password" autocomplete="off" :model="pinForm.newPin" :form-materialize>
-        <label for="newPin">Enter new Pin</label>
-      </div>
-      <div class="input-field col s12">
-        <div class="col s12">
-          <button class="btn btn-primary btnsubmit right" :disabled="!pinForm.newPin || !pinForm.oldPin" @click="changePin()"> Change Pin </button>
-        </div>
-      </div>
-    </j-fragment>
-  </div>
+<activity-nav-bar pageTitle="Change Pin"></activity-nav-bar>
+<div class="row p-3" *if="hasPin else noPinMessage">
+    <div class="col-12">
+      <input type="password" @{:model}="pinForm.oldPin" autocomplete="off">
+      <label for="oldPin">Enter old Pin</label>
+    </div>
+    <div class="col-12">
+      <input type="password" autocomplete="off" @{:model}="pinForm.newPin">
+      <label for="newPin">Enter new Pin</label>
+    </div>
+    <div class="col-12">
+      <button class="btn btn-primary float-end" {disabled}="!pinForm.newPin || !pinForm.oldPin" @click="changePin()"> Change Pin </button>
+    </div>
 </div>
 
 <j-template #no-pin-message>
-  <div class="card-panel red lighten-2 white-text center">
-    Set a pin before changing it
-  </div>
+  <div class="m-3 alert aler-danger">You have to set a Pin first before you can change it.</div>
 </j-template>

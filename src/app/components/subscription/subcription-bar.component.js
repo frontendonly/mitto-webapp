@@ -1,21 +1,22 @@
+import { AlertService } from "../../services/alert.service";
+import { DataService } from "../../services/data.service";
+import { EventEmitter } from '@jeli/core';
+
 Element({
     selector: 'subscription-bar',
     props: ['userInfo'],
-    DI: ['alertService', 'jFlirtDataService'],
+    DI: [AlertService, DataService],
     templateUrl: './subscription-bar.html',
-    registry: [{
-        type: "emitter",
-        name: "onValidate"
-    }]
-}, SubscriptionBarElement);
-
-function SubscriptionBarElement(alertService, jFlirtDataService) {
+    events: ['onValidate:emitter']
+})
+export function SubscriptionBarElement(alertService, dataService) {
     this.userInfo = null;
     this.isPremiumUser = false;
     this.isTrial = true;
+    this.onValidate = new EventEmitter();
 
     this.didInit = function() {
-        var paidService = jFlirtDataService.getPaidService(this.userInfo);
+        var paidService = dataService.getPaidService(this.userInfo);
         this.isTrial = paidService.isTrial;
         this.isPremiumUser = paidService.isPremiumUser;
         this.onValidate.emit(paidService);

@@ -1,7 +1,7 @@
 <div class="row">
-  <div class="col s12">
-    <div class="card-panel  blue lighten-3 center" *if="!isTrial || !isPremiumUser" @click="subscription()">
-      <span>Upgrade your account to have full access. <i class="fa fa-toggle-on fa-lg blue-text"></i></span>
+  <div class="col-12">
+    <div class="alert alert-primary" *if="!isTrial || !isPremiumUser" @click="subscription()">
+      <span>Upgrade your account to have full access. <i class="bi bi-toggle2-on"></i></span>
     </div>
   </div>
 </div>

@@ -1,69 +1,60 @@
+import {AttributeAppender, DOMHelper, EventEmitter} from '@jeli/core';
+
 Directive({
     selector: 'chatTextArea',
-    DI: ['ElementRef', 'dom'],
-    props: ['restructureView', 'control=chatTextArea'],
-    registry: [{
-        type: "event",
-        name: "input blur focus",
-        handler: "handleEvents($event)"
-    }]
-}, JChatTextArea);
-
-function JChatTextArea(elementRef, dom) {
+    DI: ['HostElement?'],
+    events: [ 
+        "input blur focus:event=handleEvents($event)", 
+        'chatTextAreaChange:emitter'
+    ]
+})
+export function ChatTextAreaDirective(hostElement) {
+    this.chatTextAreaChange = new EventEmitter();
+    this.hostElement = hostElement;
     this.dummy;
-    this.handleEvents = function(event) {
-        if ($isEqual('input', event.type)) {
-            this.control.patchValue(elementRef.value);
-        } else {
-            this.restructureView($isEqual(event.type, 'focus'));
-        }
-    };
-
-    this.__ToggleGrowth = function(restructurePage) {
-        if (!this.defaultHeight) {
-            this.defaultHeight = elementRef.nativeElement.offsetHeight;
-        }
-
-        this.dummy.innerHTML = String(this.control.value)
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/\n/g, '<br />');
-
-        var height = this.dummy.offsetHeight;
-
-        if (this.defaultHeight > height) {
-            height = this.defaultHeight;
-        }
-
-        elementRef.style('height', height);
-        this.restructureView(restructurePage);
-    };
-
-    this.didInit = function() {
-        var _this = this;
-        this.dummy = dom.createElement('div', {
-            styles: {
-                height: this.defaultHeight + "px",
-                left: "-1000%",
-                position: 'absolute'
-            }
-        });
-
-        elementRef.parent.appendChild(this.dummy);
-        this.control.attachView({
-            element: elementRef,
-            canSetValue: true
-        });
-
-        this.control.valueChanges.subscribe(function() {
-            _this.__ToggleGrowth(true);
-        });
-    };
-
-    this.viewDidDestroy = function() {
-        this.dummy = null;
-    };
 }
+
+ChatTextAreaDirective.prototype.handleEvents = function(event) {
+    if (('input' == event.type)) {
+        this.__ToggleGrowth(event.target.value);
+        this.chatTextAreaChange.emit({
+            value: event.target.value
+        });
+    }
+};
+
+ChatTextAreaDirective.prototype.__ToggleGrowth = function(value) {
+    if (!this.defaultHeight) {
+        this.defaultHeight = this.hostElement.nativeElement.offsetHeight;
+    }
+
+    this.dummy.innerHTML = String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br />');
+
+    var height = this.dummy.offsetHeight;
+    if (this.defaultHeight > height) {
+        height = this.defaultHeight;
+    }
+
+    AttributeAppender(this.hostElement.nativeElement, {style:{height}});
+};
+
+ChatTextAreaDirective.prototype.viewDidLoad = function() {
+    this.defaultHeight = this.hostElement.nativeElement.clientHeight;
+    this.dummy = DOMHelper.createElement('div', {
+        style: {
+            left: "-1000%",
+            position: 'absolute'
+        }
+    }, null, this.hostElement.nativeElement.parentElement);
+};
+
+ChatTextAreaDirective.prototype.viewDidDestroy = function() {
+    this.dummy = null;
+    this.chatTextAreaChange.destroy();
+};

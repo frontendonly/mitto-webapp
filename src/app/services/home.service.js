@@ -15,100 +15,39 @@ export function HomeDataService(dataService, databaseService) {
     this.databaseService = databaseService;
 }
 
-HomeDataService.prototype.generateSearchParam = function(userInfo) {
-    var queryParam = ({
-        "inf.location": userInfo.location,
-        "inf.gender": userInfo.searchFilter.interested,
-        "inf.style": userInfo.style,
-        "inf.privacy.available": true,
-        "inf.blockedUsers": {
-            type: "notInArray",
-            value: userInfo.uid
-        }
+
+HomeDataService.prototype.getPeopleNearBy = function(userInfo, params) {
+    var values = Object.assign({
+        location: userInfo.location,
+        interested: userInfo.searchFilter.interested,
+        style: userInfo.style,
+        uid: userInfo.uid,
+        allowSameSexSearch: (userInfo.gender == userInfo.searchFilter.interested),
+        withProfilePic: userInfo.searchFilter.hasProfilePic,
+        maxAge: userInfo.searchFilter.maxAge || 40,
+        minAge: userInfo.searchFilter.minAge || 18
+    }, params);
+    
+    return this.databaseService.core.clientService.query({
+        id:'peopleNearby',
+        values
     });
-
-    if ((userInfo.gender == userInfo.searchFilter.interested)) {
-        queryParam["inf.searchFilter.interested"] = userInfo.searchFilter.interested;
-        queryParam["inf.uid"] = {
-            type: "not",
-            valu: userInfo.uid
-        };
-    }
-
-    if (userInfo.searchFilter.hasProfilePic) {
-        queryParam['inf.profileImage'] = {
-            value : true,
-            type: "isDefined"
-        }
-    }
-
-
-    return [queryParam];
 };
 
-HomeDataService.prototype.getPeopleNearBy = function(whereParam, uid) {
-    var query = Object.assign({
-        join: [{
-            table: "circles",
-            clause: "left",
-            on: "inf.uid=cir.fid",
-            where: "connected",
-            fields: this.dataService.parseQuery("CASE(WHEN fid=='%uid%' THEN sid ELSE WHEN sid == '%uid%' THEN fid ELSE null) as fid, COUNT() as isMatch", { uid: uid })
-        }, {
-            table: "circles",
-            clause: "left",
-            on: "inf.uid=cir.fid",
-            where: "!connected",
-            fields: this.dataService.parseQuery("CASE(WHEN fid=='%uid%' THEN sid ELSE WHEN sid == '%uid%' THEN fid ELSE null) as fid, COUNT() as isMyRequest", { uid: uid })
-        }, {
-            table: "favorite",
-            clause: "left",
-            on: "inf.uid=fav.fid",
-            where: "connected",
-            fields: this.dataService.parseQuery("CASE(WHEN uid=='%uid%' THEN sid ELSE WHEN sid == '%uid%' THEN uid ELSE null) as fid, COUNT() as isMyFavorite", { uid: uid })
-        }]
-    }, whereParam);
-
-    return this.dataService
-        .runQuery('select -inf,fav.isMyFavorite,cir.isMatch,cir.isMyRequest -user_info as inf,circles as cir,favorite as fav -%definition%', null, {
-            definition: query
-        });
-};
-
-HomeDataService.prototype.canPerformTask = function(uinfo, task, cb, error) {
-    this.dataService.runQuery('select -GET(restrictions.services) -configuration', {
-        onSuccess: (res) => {
-            var paidService = this.dataService.getPaidService(uinfo),
-                restrictionService = res.first().services;
-            if (paidService.isPremium || (restrictionService[task].count <= restrictionService[task].limit) || (restrictionService[task].count >= restrictionService[task].limit && (restrictionService[task].timeout || 0) < +new Date)) {
-                restrictionService[task].count = ((restrictionService[task].count >= restrictionService[task].limit) ? 1 : (restrictionService[task].count + 1));
-                restrictionService[task].timeout = 0;
-                cb(1);
-            } else {
-                // update 
-                if (!restrictionService[task].timeout || restrictionService[task].timeout < +new Date) {
-                    restrictionService[task].timeout = new Date().setSeconds(21600);
-                }
-                error(restrictionService[task].timeout);
-            }
-
-            // update restrictions
-            this.dataService.updateConfiguration({
-                restrictions: {
-                    services: restrictionService
-                }
-            });
-        }
-    })
-};
-
-HomeDataService.prototype.PerformTask = function(fid, task) {
+/**
+ * 
+ * @param {*} task 
+ * @param {*} fid 
+ * @returns 
+ */
+HomeDataService.prototype.PerformTask = function(task, fid) {
     return new Promise((resolve, reject) => {
         this.getCurrentUserInfo()
         .then((uinfo) => {
-            this.dataService.canPerformTask(uinfo, 'likes', function(can) {
+            this.dataService.canPerformTask(uinfo, task)
+            .then(() => {
                 // getPaid service
-                this[task](uinfo.uid).then(() => resolve(true), reject);
+                this[task](uinfo.uid, fid).then(() => resolve(true), reject);
             }, function(timeout) {
                 reject({
                     subscriptionRequired: true,
@@ -119,7 +58,7 @@ HomeDataService.prototype.PerformTask = function(fid, task) {
     });
 }
 
-HomeDataService.prototype.like = function(uid, fid){
+HomeDataService.prototype.likes = function(uid, fid){
     var jqlData = {
         data: {
             connected: false,

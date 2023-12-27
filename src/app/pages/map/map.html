@@ -1,24 +1,6 @@
-<activity-nav-bar page-title="Location"></activity-nav-bar>
-<div class="page-content map_canvas">
-  <div id="map_canvas" style="height:100%">
-    <div class="row no-mgn">
-      <div class="col s11">
-        <div class="commentContainer">
-          <div class="authorTnput">
-            <div class="wrap">
-              <input type="text" class="input center" :model="searchField" placeholder="Enter a location">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col s1">
-        <div class="mtm black-text" :show="searchField" @click="searchLocation()"><i class="fa fa-search fa-lg"></i></div>
-      </div>
-    </div>
-    <div class="footer" :show="useFooter">
-      <div class="black-text">
-        <a class="white-text pas right" @click="shareLocation()">Share</a>
-      </div>
-    </div>
-  </div>
+<activity-nav-bar pageTitle="Location"></activity-nav-bar>
+<div id="map_canvas" style="height:100%">
+  <fo-google-map {config}="mapConfig" {readOnly}="!showShareBtn" {address}="$activityParam.geoLocation" emitCurrentLocation="true" @onPlaceSelected="onPlaceSelected($event)">
+    <button type="button" *if="showShareBtn"  {disabled}="!selectedAddress" class="btn btn-primary" @click="shareLocation()">Share</button>
+  </fo-google-map>
 </div>

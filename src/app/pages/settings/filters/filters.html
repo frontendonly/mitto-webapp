@@ -2,14 +2,14 @@
 <div class="bnPlayMaker p-3 clearfix" {:formControl}="filterForm">
   <div class="section mb-4">
     <fo-radio-button name="style" label="Preferred Style:">
-      <radio-item *for="opt of appConfig.styles" {value}="opt" {id}="opt" {label}="opt"></radio-item>
+      <radio-item *for="opt of appConfig.styles; idx=index" {value}="idx" {id}="opt" {label}="opt"></radio-item>
     </fo-radio-button>
   </div>
 
   <div class="section" :formControlName="searchFilter">
     <div class="mb-3">
       <fo-radio-button label="Interested in:" name="interested">
-        <radio-item {value}="gen" {id}="gen" *for="gen of appConfig.genders" {iconClass}="'bi bi-gender-'+gen" {label}="gen|uppercase"></radio-item>
+        <radio-item {value}="idx" {id}="gen" *for="gen of appConfig.genders; idx=index" {iconClass}="'bi bi-gender-'+gen" {label}="gen|uppercase"></radio-item>
       </fo-radio-button>
     </div>
 
@@ -33,7 +33,7 @@
         </div>
         <div class="col">
           <label for="maxAgeRange">Max age: ${filterForm.value.searchFilter.maxAge}</label>
-          <input type="range" class="form-range" id="maxAgeRange" :formField="maxAge" min="18" max="80" />
+          <input type="range" class="form-range" id="maxAgeRange" :formField="maxAge" {min}="filterForm.value.searchFilter.minAge" max="80" />
         </div>
       </div>
       <div class="divider"></div>

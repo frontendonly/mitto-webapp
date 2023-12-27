@@ -1,77 +1,26 @@
-import { AppEventService } from "../../app.service";
-import { DataService } from "../../services/data.service";
-import { GlobalService } from "../../services/globalservice.factory";
+import { EventEmitter } from '@jeli/core';
 
 Element({
     selector: 'app-menu',
-    DI: [GlobalService, DataService, AppEventService],
     props: ['userInfo', 'isAuthenticated'],
+    events: ['onMenuClicked:emitter'],
     templateUrl: './app-menu.component.html'
 })
-export function AppMenuElement(globalService, dataService, appEvent) {
+export function AppMenuElement() {
     this.isAuthenticated = false;
-    this.userInfo = null;
-    this.globalService = globalService;
-    this.dataService = dataService;
-    this.appEvent = appEvent;
+    this.onMenuClicked = new EventEmitter();
+    this.menu = {
+        others: [{ 'label': 'Add Friends', action: 'openPage', pageId: 'addFriends', iconClass: 'person-plus' },
+        { 'label': 'Coins', action: 'openPage', pageId: 'coins', iconClass: 'coin' },
+        { 'label': 'Profile', action: 'openPage', pageId: 'settings.profile', iconClass: 'person-fill-gear' },
+        { 'label': 'Privacy', action: 'openPage', pageId: 'settings.privacy', iconClass: 'person-fill-lock' },
+        { 'label': 'Blocked Users', action: 'openPage', pageId: 'blockedUsers', iconClass: 'person-fill-slash' }],
+        main: [{ 'label': 'Visitors', action: 'openPage', badge: 'visitors', pageId: 'visitors', iconClass: 'eye-fill' },
+        { 'label': 'Likes', action: 'openPage', badge: 'likes', pageId: 'likes', iconClass: 'heart-fill' },
+        { 'label': 'Interest', action: 'openPage', badge: 'favorites', pageId: 'interest', iconClass: 'star-fill' }],
+        bottom: [{ 'label': 'Logout', action: 'logout', iconClass: 'person-exclamation' },
+        { 'label': 'Change Password', action: 'openPage', pageId: 'settings.password', iconClass: 'key-fill' },
+        { 'label': 'Pause Account', action: 'hide', iconClass: 'pause-fill' },
+        { 'label': 'Deactivate Account', action: 'del', iconClass: 'person-fill-x' }]
+    }
 }
-
-AppMenuElement.prototype.logoutUser = function () {
-    this.globalService.confirm("<p>Are you sure you want to logout?</p>", [{
-        title: 'Proceed',
-        $action: ($close) => {
-            this.appEvent.disconnect();
-            $close();
-        }
-    }], true);
-};
-
-AppMenuElement.prototype.hideAccount = function () {
-    this.globalService.openModal({
-        title: 'Pause Account',
-        templateUrl: './pause-account.html',
-        showCloseBtn: true,
-        fullScreen: true,
-        buttons: [{
-            title: "Pause",
-            $action: ($close) => {
-                $close();
-                this.pauseAccount();
-            }
-        }]
-    });
-};
-
-AppMenuElement.prototype.pauseAccount = function () {
-    this.userInfo.privacy.available = false;
-    this.dataService.updateProfile({
-        privacy: this.userInfo.privacy,
-        uid: this.userInfo.uid
-    }).then(() => this.globalService.events.$broadcast('settings.privacy', _this.userInfo.privacy),
-        () => this.globalService.alert("<p>unable to update please try again later.</p>", 1000)
-    );
-};
-
-AppMenuElement.prototype.deleteAccount = function () {
-    this.globalService.openModal({
-        title: 'Deactivate Account',
-        templateUrl: './delete-account.html',
-        showCloseBtn: true,
-        fullScreen: true,
-        buttons: [{
-            title: 'Pause',
-            $action: ($close) => {
-                $close();
-                this.pauseAccount();
-            }
-        }, {
-            title: "Deactivate",
-            $action: ($close) => {
-                this.dataService.deactivateAccount(this.userInfo.uid, () => {
-                    $close();
-                    this.appEvent.disconnect();
-                });
-            }
-        }]
-    });
-};

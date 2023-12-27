@@ -34,6 +34,34 @@ DataService.prototype.storeUserInfo = function (data, CB) {
         .then(CB, console.log)
 };
 
+DataService.prototype.canPerformTask = function(uinfo, task) {
+    return new Promise((resolve, reject) => {
+        this.runQuery('select -restrictions.services -configuration')
+        .then((res) => {
+            var paidService = this.getPaidService(uinfo),
+                restrictionService = res.first().services;
+            if (paidService.isPremium || (restrictionService[task].count <= restrictionService[task].limit) || (restrictionService[task].count >= restrictionService[task].limit && (restrictionService[task].timeout || 0) < +new Date)) {
+                restrictionService[task].count = ((restrictionService[task].count >= restrictionService[task].limit) ? 1 : (restrictionService[task].count + 1));
+                restrictionService[task].timeout = 0;
+                resolve(1);
+            } else {
+                // update 
+                if (!restrictionService[task].timeout || restrictionService[task].timeout < +new Date) {
+                    restrictionService[task].timeout = new Date().setSeconds(21600);
+                }
+                reject(restrictionService[task].timeout);
+            }
+    
+            // update restrictions
+            this.configService.updateConfiguration({
+                restrictions: {
+                    services: restrictionService
+                }
+            });
+        })
+    })
+};
+
 DataService.prototype.getUserInfo = function (query, uData) {
     return new Promise((resolve, reject) => {
         this.databaseService.core.jQl('select -* -user_info -where(%query%)', null, {
@@ -63,8 +91,8 @@ DataService.prototype.getCurrentUserInfo = function () {
     return this.getUserInfo({ uid: this.foAuthService.userId });
 };
 
-DataService.prototype.updateProfile = function (info, handler) {
-    this.databaseService.core.jQl('update -user_info -%data% -%query%', handler, {
+DataService.prototype.updateProfile = function (info) {
+    return this.databaseService.core.jQl('update -user_info -%data% -%query%', null, {
         data: info,
         query: { uid: info.uid }
     });
@@ -75,7 +103,8 @@ DataService.prototype.runQuery = function (query, handler, replacer) {
 };
 
 DataService.prototype.searchPeopleServer = function (query) {
-    return this.databaseService.core.api('/database/query', query, 'user_info');
+    query.tables = ['user_info'];
+    return this.databaseService.core.clientService.query(query);
 };
 
 DataService.prototype.registerVisitors = function (uid, sid) {
@@ -84,15 +113,12 @@ DataService.prototype.registerVisitors = function (uid, sid) {
         visitor_uid: sid
     }];
 
-    this.runQuery('select -* -visitors -where(%whereClause%)', null, {
-        whereClause: whereClause
-    }).then(tx => {
+    this.runQuery('select -* -visitors -where(%0%)', null, [whereClause]).then(tx => {
         var len = tx.jDBNumRows();
+        var query = 'insert -[%postData%] -visitors';
 
         if (len) {
             query = 'update -visitors -%postData% -%whereClause%';
-        } else {
-            query = 'insert -[%postData%] -visitors';
         }
 
         this.runQuery(query, null, {
@@ -170,15 +196,14 @@ DataService.prototype.blockUser = function (uid) {
         });
 };
 
-DataService.prototype.unMatchUser = function (uid, CB) {
+DataService.prototype.unMatchUser = function (uid) {
     // remove user messages
-    this.runQuery([
+    returnnthis.runQuery([
         'delete -messages -where -(receiver == %uid% || sender == %uid%)',
         'delete -circles -where -(fid == %uid% || sid == %uid%)',
         'delete -favorite -where -(uid == %uid% || sid == %uid%)',
         'delete -visitors -where -(visitor_id == %uid% || visitor_uid == %uid%)'
-    ], null, { uid: uid })
-        .then(CB)
+    ], null, { uid });
 };
 
 DataService.prototype.deactivateAccount = function (uid, CB) {
@@ -203,6 +228,17 @@ DataService.prototype.deactivateAccount = function (uid, CB) {
                     loginInfo: {},
                     userData: {}
                 }
-            }, CB)
+            }).then(CB)
         });
 };
+
+DataService.prototype.getBlockedUsers = function(blockedUsers){
+    return this.databaseService.core.jQl('select -name,profileImage,gender,uid -user_info -%0%', null, [{
+        where: [{
+            uid: {
+                type: 'inArray',
+                value: blockedUsers
+            }
+        }]
+    }])
+}

@@ -1,211 +1,182 @@
+import { AlertService } from "../../services/alert.service";
+import { ViewIntentService } from '@jeli/router';
+import { CoinsDataService } from "../../services/coins.data.service";
+import { CurrencyService } from "../../services/money";
+import { RealTimeService } from "../../services/notification.factory";
+
 Element({
     selector: 'mitto-manage-coins',
-    DI: ['viewIntent', "GlobalService", "jFlirtCoinsDataService", "$bnBOX", "$money"],
-    templateUrl: './manage-coins.html'
-}, ManageCoinsComponent);
-
-function ManageCoinsComponent(viewIntent, _, jFlirtCoinsDataService, $bnBOX, $money) {
-    this.userInfo = {};
-    this.hasPin = false;
-    this.totalCoins = 0;
-    this.historys = [];
-    this.accordionList = {
-        history: true,
-        buy: false,
-        resetPin: false
-    };
-
-    this.currency = $money.getCurrencies();
-    this.transfer = {
-        error: [],
-        form: {}
-    };
-
+    DI: [ViewIntentService, AlertService, CoinsDataService, RealTimeService, CurrencyService, 'changeDetector?'],
+    templateUrl: './manage-coins.html',
+    exposeView: true
+})
+export function ManageCoinsElement(viewIntent, alertService, coinsDataService, realTimeService, currencyService, changeDetector) {
+    this.accordionItems = ['history','transfer', 'buy'];
+    this.realTimeService = realTimeService;
+    this.viewIntent = viewIntent;
+    this.alertService = alertService;
+    this.coinsDataService = coinsDataService;
+    this.currencyService = currencyService;
+    this.changeDetector = changeDetector;
     /**
      * default selected coins purchase
      */
     this.selected = 2;
-    //load all history
-    this.loadHistory = function() {
-        var _this = this;
-        jFlirtCoinsDataService
-            .getCoinsHistory(this.userInfo.uid, {
-                onSuccess: function(res) {
-                    _this.historys = res.getResult();
-                },
-                onError: console.log
-            });
-    };
-
-    this.setKlass = function(isDebit) {
-        return (isDebit) ? 'active' : '';
-    };
-
-    this.setArrowKlass = function(isDebit) {
-        return 'fa-arrow-circle-' + ((!isDebit) ? 'down green-text' : 'up red-text');
-    };
-
-    this.purchase = function(coin, idx) {
-        viewIntent.openIntent('checkout', {
-            amount: $money.fx(coin.amount).to(this.currency),
-            currency: this.currency,
-            description: "Mitto coins purchase (" + coin.value + " units)"
-        });
-
-        this.selected = idx;
-    };
-
-    this.changePin = function() {
-        var _this = this;
-        if (!this.pinForm.newPin) {
-            return;
+    this.userInfo = {};
+    this.hasPin = false;
+    this.totalCoins = 0;
+    this.historys = [];
+    this.selectedAccordionItem = 'history';
+    this.currency = currencyService.getCurrencies();
+    this.pinForm = {};
+    this.transfer = {
+        error: null,
+        form: {
+            amount:0,
+            receiver: null,
+            pin: ''
         }
-        //set the UID
-        this.pinForm.uid = this.userInfo.uid;
-        jFlirtCoinsDataService.changePin(this.pinForm, !this.hasPin, {
-            onSuccess: function(res) {
-                if (!_this.hasPin) {
-                    _this.hasPin = true;
-                    _this.totalCoins = 100;
-                } else {
-                    _this.setAccordion('resetPin');
-                    _.alert("Pin Successfully Changed!!");
-                }
-            },
-            onError: function(err) {
-                _.alert(err.message);
-            }
+    };
+
+    Object.defineProperty(this, 'canTransfer', {
+        get: () => (this.transfer.form.pin.length >= 4 && (this.transfer.form.amount  && this.transfer.form.amount) <= this.totalCoins && this.transfer.form.receiver)
+    })
+}
+
+//load all history
+ManageCoinsElement.prototype.loadHistory = function () {
+    this.coinsDataService
+        .getCoinsHistory(this.userInfo.uid)
+        .then((res) => {
+            this.historys = res.getResult();
+            this.changeDetector.detectChanges();
         });
-    };
+};
 
-    this.selectUser = function() {
-        var _this = this;
-        if (!this.transfer.form.user) {
-            this.circleList = [];
-            return;
+ManageCoinsElement.prototype.setKlass = function (isDebit) {
+    return (isDebit) ? 'active' : '';
+};
+
+
+
+ManageCoinsElement.prototype.purchase = function (coin, idx) {
+    this.viewIntent.openIntent('checkout', {
+        amount: this.currencyService.fx(coin.amount).to(this.currency),
+        currency: this.currency,
+        description: "Mitto coins purchase (" + coin.value + " units)"
+    });
+
+    this.selected = idx;
+};
+
+ManageCoinsElement.prototype.changePin = function () {
+    if (!this.pinForm.newPin || this.pinForm.newPin !== this.pinForm.verifyPin) return;
+    //set the UID
+    this.pinForm.uid = this.userInfo.uid;
+    this.coinsDataService.changePin(this.pinForm, !this.hasPin)
+    .then(() => {
+        if (!this.hasPin) {
+            this.hasPin = true;
+            this.totalCoins = 100;
+        } else {
+            this.setAccordion('resetPin');
+            this.alertService.alert("Pin Successfully Changed!!");
         }
+    }, (err) => this.alertService.alert(err.message));
+};
 
-        jFlirtCoinsDataService
-            .selectUser(this.transfer.form.user, this.userInfo.uid, {
-                onSuccess: function(res) {
-                    _this.circleList = res.getResult();
-                },
-                onError: function() {}
-            });
-    };
-
-    this.addUser = function(user) {
-        this.transfer.form.user = user.name;
-        this.transfer.form.receiver = user.uid;
-        this.transfer.form.sender = this.userInfo.uid;
+ManageCoinsElement.prototype.selectUser = function (user) {
+    if (!user) {
         this.circleList = [];
-    };
-
-    this.canTransfer = function() {
-        return Object.keys(this.transfer.form).length > 3;
-    };
-
-
-    this.submit = function() {
-        var _this = this;
-        this.transfer.error = [];
-        jFlirtCoinsDataService.transferCoins(this.transfer.form)
-            .then(function() {
-                _this.totalCoins = this.totalCoins - this.transfer.form.amount;
-                _this.transfer.form = {};
-                _.alert("Transfer Successful!!");
-                _this.loadHistory();
-            }, function(err) {
-                _this.transfer.error = err;
-            });
-    };
-
-    this.validator = function(field) {
-        var _this = this;
-        var actions = {
-            amount: function() {
-                if (_this.transfer.form.amount > _this.totalCoins) {
-                    _this.transfer.error[field] = "You need " + (_this.transfer.form.amount - _this.totalCoins) + "MTC, please buy more coins";
-                } else {
-                    delete this.transfer.error[field];
-                }
-            },
-            pin: function() {
-
-            }
-        };
-
-        (actions[field] || function() {})()
+        return;
     }
 
-    this.setAccordion = function($accord) {
-        this.accordionList[$accord] = !this.accordionList[$accord];
-    };
-
-    this.showAccordion = function($accord) {
-        return this.accordionList[$accord] ? "block" : "none";
-    };
-
-    this.changePin = function() {
-        this.pinForm.uid = this.userInfo.uid;
-        jFlirtCoinsDataService.changePin(this.pinForm, !this.hasPin, {
-            onSuccess: function(res) {
-                this.hasPin = true;
-                _.alert("Pin Successfully Changed!!");
-            },
-            onError: function(err) {
-                _.openModal(err.message);
-            }
+    this.coinsDataService
+        .selectUser(user, this.userInfo.uid)
+        .then((res) => {
+            this.circleList = res.getResult();
+            this.changeDetector.detectChanges();
         });
-    };
+}
 
+ManageCoinsElement.prototype.onTagSelected = function(event) {
+    var user = event[0] || {};
+    this.transfer.form.user = user.name || null;
+    this.transfer.form.receiver = user.uid || null;
+    this.circleList = [];
+}
 
-
-    this.viewDidDestroy = function() {
-        $bnBOX.events.unregister("events.coins.history");
-    };
-
-    this.didInit = function() {
-        var _this = this;
-        // load user info
-        jFlirtCoinsDataService.getCurrentUserInfo()
-            .then(function(data) {
-                _this.userInfo = data;
-            });
-
-        // get coins info
-        jFlirtCoinsDataService
-            .getCoinsInfo({
-                onSuccess: function(res) {
-                    _this.hasPin = res.jDBNumRows();
-                    if (_this.hasPin) {
-                        _this.totalCoins = res.first().total;
-                        _this.accordionList.buy = true;
-                    } else {
-                        _this.accordionList.resetPin = true;
-                    }
-
-                    jFlirtCoinsDataService
-                        .getCoinsTotal(_this.userInfo.uid, function(debit, credit) {
-                            _this.totalCoins = (credit - debit);
-                        });
-                }
-            });
-
-        jFlirtCoinsDataService
-            .runQuery('select -coinsPurchase -configuration', {
-                onSuccess: function(res) {
-                    _this.coinsPurchase = res.first().coinsPurchase;
-                }
-            });
-
-        //init process
-        this.loadHistory();
-        $bnBOX.events.register("events.coins.history", function(res, getCount) {
-            if (getCount('_coins_history')) {
-                _this.loadHistory();
+ManageCoinsElement.prototype.submitTransferRequest = function () {
+    if (!this.canTransfer) return;
+    this.transfer.error = null;
+    this.transfer.inProgress = true;
+    this.coinsDataService.transferCoins(this.transfer.form)
+        .then(() => {
+            this.totalCoins = this.totalCoins - this.transfer.form.amount;
+            this.transfer.form = {
+                amount:0,
+                receiver: null,
+                pin: ''
             };
+            this.transfer.inProgress = false;
+            this.selectedAccordionItem = 'history';
+            this.loadHistory();
+        }, (err) => {
+            console.log(err)
+            this.transfer.inProgress = false;
+            this.transfer.error = err.message;
+            this.changeDetector.detectChanges();
         });
-    }
+};
 
+ManageCoinsElement.prototype.validator = function (field) {
+    var actions = {
+        amount: () => {
+            if (this.transfer.form.amount > this.totalCoins) {
+                this.transfer.error = "You need " + (this.transfer.form.amount - this.totalCoins) + "MTC, please buy more coins";
+            } else {
+               this.transfer.error = null;
+            }
+        },
+        pin: function () { }
+    };
+
+    (actions[field])();
+}
+
+ManageCoinsElement.prototype.viewDidDestroy = function () {
+    this.realTimeService.events.unregister("events.coins.history");
+};
+
+ManageCoinsElement.prototype.didInit = function () {
+    // load user info
+    this.coinsDataService.dataService.getCurrentUserInfo()
+        .then((data) => {
+            this.userInfo = data;
+            this.transfer.form.sender = data.uid;
+            //init process
+            this.loadHistory();
+        });
+
+    // get coins info
+    this.coinsDataService
+        .getCoinsInfo()
+        .then((res) => {
+            this.hasPin = res.jDBNumRows();
+            if (this.hasPin) {
+                this.totalCoins = res.first().total;
+            } else {
+                this.selectedAccordionItem = 'resetPin';
+            }
+        });
+
+    this.coinsDataService
+        .purchases()
+        .then(res => this.coinsPurchase = res.first().coinsPurchase);
+
+    this.realTimeService.events.register("events.coins.history", (res, getCount) => {
+        if (getCount('coins_history')) {
+            this.loadHistory();
+        };
+    });
 }

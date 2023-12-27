@@ -1,0 +1,239 @@
+.chatContentHolder {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    .chatBoxContainer {
+        display: table;
+        width: 100%;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-size: 62.5%;
+        line-height: 1;
+        color: #414141;
+        ul.uiChatBoxHolder {
+            display: table-cell;
+            vertical-align: bottom;
+            overflow: hidden;
+            padding-bottom: 3rem;
+            list-style:none;
+            li div {
+                display: block;
+            }
+
+            .mediumFont {
+                font-size: 20px;
+                padding: 4px
+            }
+
+            .uiCenterError {
+                left: 0;
+                width: 100%;
+                text-align: center;
+                position: fixed;
+                top: 50%
+            }
+
+            .uiChatNotify {
+                width: 100%;
+                text-align: center;
+                span {
+                    display: block;
+                    text-align: center;
+                    font-weight: bold;
+                    margin-bottom: 8px;
+                    color: #8b91a0;
+                    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.6);
+                    padding: 3px;
+                    font-size: 1.2em;
+                    line-height: 1.25em;
+                }
+            }
+
+            ul.ui-discussion {
+                list-style: none;
+                padding: 0 0 5px 0;
+                li {
+                    padding: .5rem;
+                    overflow: hidden;
+                    display: flex;
+                    padding-top: 0px;
+                    .avatar {
+                        width: 40px;
+                        position: relative;
+                        img {
+                            display: block;
+                            width: 2.5rem;
+                            height: 2.5rem;
+                        }
+                    }
+
+                    .messages {
+                        background: white;
+                        padding: 10px;
+                        border-radius: 0px 0.8rem 0px 0.8rem;
+                        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+                        .attachment {
+                            margin-bottom: 1vh;
+                            .image {
+                                width: 100%;
+                                height: auto;
+                            }
+                        }
+                        time {
+                            font-size: .7rem;
+                            color: #ccc
+                        }
+                        p {
+                            font-size: .8rem;
+                            margin: 0 0 .2rem 0
+                        }
+                    }
+                    .messages.chat-resize-width {
+                        width: 70vw;
+                        padding: 0 0 10px 0;
+                        .messagebar {
+                            padding: 0px 10px;
+                        }
+                    }
+                }
+
+                .self {
+                    justify-content: flex-end;
+                    align-items: flex-end;
+                    .avatar {
+                        order: 2;
+                        width: 0.5rem;
+                    }
+
+                    .avatar:after {
+                        content: "";
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        width: 0;
+                        height: 0;
+                        border: 5px solid RGBA(var(--bs-primary-rgb), var(--bs-bg-opacity, 1));
+                        border-right-color: transparent;
+                        border-top-color: transparent;
+                        /*box-shadow:1px 1px 2px rgba(0,0,0,0.2)*/
+                    }
+                
+                    .messages {
+                        order: 1;
+                        border-bottom-right-radius: 0;
+                        span.read {
+                            color: #fff;
+                        }
+                        span.unread {
+                            color: #ccc;
+                        }
+                    }
+                }
+                
+                .other .noBackground,
+                .self .noBackground {
+                    background: transparent;
+                    box-shadow: inherit;
+                }
+                
+                .other .noBackground:after,
+                .self .noBackground:after {
+                    border: none;
+                }
+
+                .other .avatar:after {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 0;
+                    height: 0;
+                    border: 5px solid #fff;
+                    border-left-color: transparent;
+                    border-bottom-color: transparent
+                }
+                
+                .avatar.removeBorder:after,
+                .self .avatar.removeBorder:after {
+                    border: none;
+                }
+            }
+        }
+    }
+}
+
+.useFooterText {
+    margin-top: 10px;
+    background: #FFF;
+    color: #fff;
+    text-align: center;
+    min-height: 30px;
+    height: auto;
+    position: fixed!important;
+    width: 100%;
+    bottom: 0;
+    right: 0;
+    .sticker-container {
+        max-height: 10rem;
+        height: 10rem;
+        overflow-x: hidden;
+        border-top: 1px solid #e0e0e0;
+        .sticker-menu {
+            position: fixed;
+            width: 100%;
+            background: #fff;
+            bottom: 0px;
+        }
+        .sticker-content {
+            padding-bottom: 8vh;
+        }
+    }
+
+    .commentContainer {
+        background: 0 0;
+        border: none;
+        position: relative;
+        z-index: 1;
+        .wrap {
+            padding: 5px!important;
+            border: 0 none;
+            .Tinput {
+                min-height: 48px;
+                resize: none;
+                vertical-align: bottom;
+                padding: 0;
+                font-size: 15px;
+                color: #000;
+                -webkit-box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                box-sizing: border-box
+            }
+            
+            .textinput {
+                border: 0;
+                margin: 0;
+                width: 100%;
+                outline: 0;
+                background-color: #fff;
+                padding: 3px
+            }
+            
+            .Textgrowth {
+                overflow: hidden
+            }
+
+            .uiBottomTextarea {
+                min-height: 32px;
+                height: 32px;
+                font-size: inherit
+            }
+        }
+    }
+
+    .uiButtonPlacer {
+        width: 2rem;
+        border: none;
+        margin: 0;
+        padding: 0;
+        height: 2rem;
+        background-color: #FFFFFF;
+    }
+}

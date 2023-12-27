@@ -1,91 +1,59 @@
+import { ViewIntentService } from '@jeli/router';
+import { AlertService } from '../../services/alert.service';
+import { CircleService } from './circle.service';
+
 Element({
     selector: 'mitto-circles',
-    DI: ['viewIntent', "jDB", "jFlirtDataService", "GlobalService", "alertService"],
+    DI: [ViewIntentService, AlertService, CircleService,'changeDetector?'],
     templateUrl: './circles.html',
-    styleUrl: './circle.css'
-}, CirclesComponent);
-
-function CirclesComponent(viewIntent, jDB, jFlirtDataService, _, alertService) {
+    styleUrl: './circle.css',
+    exposeView: true
+})
+export function CirclesElement(viewIntentService, alertService, circleService, changeDetector) {
     this.circleData = [];
-    var query = "select -%columns%  -%table% -%definition%";
+    this.changeDetector = changeDetector;
+    this.viewIntentService = viewIntentService;
+    this.alertService = alertService;
+    this.circleService = circleService;
     this.userInfo = {};
-    this.performQuery = function() {
-        var _this = this,
-            data = { uid: this.userInfo.uid };
-        var replacer = {
-            table: "user_info as inf, " + this._currentActivity.data.tables + " as m",
-            columns: "inf",
-            definition: {
-                join: [{
-                    table: 'm',
-                    clause: "right",
-                    on: "inf.uid=m.fid"
-                }]
-            }
-        };
+    this._currentActivity = {};
 
-        switch (this._currentActivity.name) {
-            case ('interest'):
-                replacer.definition.join[0].where = "uid=" + data.uid;
-                replacer.definition.join[0].fields = jFlirtDataService.parseQuery("CASE(WHEN uid=='%uid%' THEN sid ELSE WHEN sid == '%uid%' THEN uid ELSE null) as fid", data);
-                break;
-            case ('likes'):
-                replacer.definition.join[0].where = "!connected && fid=" + data.uid;
-                replacer.definition.join[0].fields = jFlirtDataService.parseQuery("CASE(WHEN fid=='%uid%' THEN sid ELSE WHEN sid == '%uid%' THEN fid ELSE null) as fid", data);
-                break;
-            case ('visitors'):
-                replacer.definition.join[0].where = "notification && visitor_id=" + data.uid;
-                replacer.definition.join[0].fields = jFlirtDataService.parseQuery("CASE(WHEN visitor_id=='%uid%' THEN visitor_uid ELSE WHEN visitor_uid == '%uid%' THEN visitor_id ELSE null) as fid", data);
-                break;
-            case ('match'):
-                replacer.definition.join[0].where = jFlirtDataService.parseQuery("connected && fid=%uid% || connected && sid=%uid%", data);
-                replacer.definition.join[0].fields = jFlirtDataService.parseQuery("CASE(WHEN fid=='%uid%' THEN sid ELSE WHEN sid == '%uid%' THEN fid ELSE null) as fid", data);
-                break;
+    Object.defineProperty(this, 'canViewInfo', {
+        get: () => {
+            return (this.isMatchView || (this.subscriberInfo && this.subscriberInfo.isPremiumUser));
         }
-        jDB.tx
-            .jQl(query, {
-                onSuccess: function(res) {
-                    _this.circleData = res.getResult();
-                },
-                onError: console.log
-            }, replacer);
-    }
-
-    this.open = function(userInfo) {
-        if (this.canViewInfo()) {
-            viewIntent.openIntent('profile', userInfo);
-        } else {
-            this.openSubscription();
-        }
-    };
-
-    this.openSubscription = function() {
-        alertService.alertSubscription();
-    };
-
-    this.canViewInfo = function() {
-        return this.subscriberInfo.isPremiumUser || this.isMatchView;
-    };
-
-    this.blurImage = function(circle) {
-        return !this.canViewInfo();
-    };
-
-    this.didInit = function() {
-        var _this = this;
-        this._currentActivity = viewIntent.getCurrentIntent();
-        this.labels = this._currentActivity.data.labels;
-        jFlirtDataService
-            .getCurrentUserInfo()
-            .then(function(userInfo) {
-                _this.userInfo = userInfo;
-                _this.performQuery();
-                _this.isMatchView = $isEqual(_this.labels.title.toLowerCase(), 'match');
-                _this.isFavorites = $isEqual(_this.labels.title.toLowerCase(), 'favorites');
-            });
-    };
-
-    this.subscriptionCheck = function(event) {
-        this.subscriberInfo = event.value;
-    };
+    })
 }
+
+CirclesElement.prototype.performQuery = function () {
+    this.circleService.performQuery(this._currentActivity.name, this._currentActivity.data.tables, this.userInfo.uid)
+        .then((res) => {
+            this.circleData = res.getResult();
+            this.changeDetector.detectChanges();
+        });
+}
+
+CirclesElement.prototype.open = function (userInfo) {
+    if (this.canViewInfo) {
+        this.viewIntentService.openIntent('profile', userInfo);
+    } else {
+        this.alertService.alertSubscription();
+    }
+}
+
+CirclesElement.prototype.didInit = function () {
+    this._currentActivity = this.viewIntentService.getCurrentIntent();
+    this.labels = this._currentActivity.data.labels;
+    var canShowViews = [this.labels.title.toLowerCase()];
+    this.circleService.getCurrentUserInfo()
+        .then((userInfo) => {
+            this.userInfo = userInfo;
+            this.performQuery();
+            this.isMatchView = canShowViews.includes('match');
+            this.isFavorites = canShowViews.includes('favorites');
+        });
+};
+
+CirclesElement.prototype.subscriptionCheck = function (event) {
+    this.subscriberInfo = event.value;
+};

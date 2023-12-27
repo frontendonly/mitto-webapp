@@ -1,8 +1,0 @@
-mitto-message imgResolver {
-    text-align: center;
-}
-
-mitto-message imgResolver span.no-image {
-    color: #000 !important;
-    font-size: 3em;
-}

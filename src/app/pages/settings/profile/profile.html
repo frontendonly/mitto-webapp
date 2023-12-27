@@ -1,59 +1,33 @@
-<activity-nav-bar page-title="Profile Settings" @on-close="updateSettings()"></activity-nav-bar>
-<div class="page-content clearfix">
-  <!-- edit profile -->
-  <div class="section ptn">
-    <div class="col s12" *if="fileUploadProcess">
-      <div class="progress">
-        <div class="indeterminate"></div>
-      </div>
-    </div>
-    <j-fragment {:form-control}="editProfileForm">
-      <div class="row">
-        <div class="input-field col s6 ">
-          <img {:imgResolver}="editProfileForm.value.profileImage" fallback="true" {gender}="editProfileForm.value.gender" class="circle img-responsive" @on-dispatcher="imageChangeDispatcher()" dimension="70x70">
-        </div>
-        <div class="input-field col s6">
-          <div class="mtl">
-            <span class="blue-text right" @click="openImageMenu()"><i class="fa fa-2x fa-image"></i></span>
-          </div>
-        </div>
-      </div>
+<activity-nav-bar pageTitle="Profile Settings" @onClose="updateSettings()"></activity-nav-bar>
+<div class="p-3 clearfix" {:formControl}="editProfileForm">
+  <div class="position-relative mb-3">
+      <img {:imgResolver}="editProfileForm.value.profileImage" fallback="true" {gender}="editProfileForm.value.gender"
+        class="rounded-circle img-responsive" @onDispatcher="imageChangeDispatcher()" dimension="70x70">
+      <a class="btn btn-link" @click="openImageMenu()"><i class="bi bi-image"></i> Edit Profile Picture</a>
+  </div>
+  <div class="input-group mb-3">
+    <span class="input-group-text">MITTO ID</span> <input type="text" :formField="username" class="form-control" />
+  </div>
+  <div class="input-group mb-3">
+    <span class="input-group-text">Mobile Number</span> <input type="text" :formField="mobile" class="form-control" />
+  </div>
+  <div class="input-group mb-3">
+    <span class="input-group-text">Display name</span> <input type="text" :formField="name" class="form-control" />
+  </div>
+  <div class="input-group mb-3">
+    <span class="input-group-text">Location</span> <input type="text" :formField="location" class="form-control" />
+  </div>
+  <div class="clearfix mb-3">
+    <textarea :formField="description" maxlength="499" class="form-control validate"
+        attr-placeholder="'About '+ (editProfileForm.value.name || '')"></textarea>
+      <span class="float-end text-muted mt-2">${499 - editProfileForm.value.description.length}</span>
+  </div>
 
-      <div class="row">
-        <div class="col s12 input-field">
-          <span class="col s5">MITTO ID</span> <input type="text" :form-field="username" class="col s7" />
-        </div>
-        <div class="col s12 input-field">
-          <span class="col s5">Display name</span> <input type="text" :form-field="name" class="col s7" />
-        </div>
-      </div>
 
-      <div class="row">
-        <div class="input-field col s12">
-          <span class="col s5">Mobile Number</span>
-          <input type="tel" :form-field="mobile" class=" col s7 validate" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="input-field col s12">
-          <textarea :form-field="description" maxlength="499" class="materialize-textarea validate" placeholder="About ${:editProfileForm.value.name}"></textarea>
-          <span class="right counter-mark">${499 - editProfileForm.value.description.length}</span>
-        </div>
-      </div>
-
-      <div class="white row">
-        <div class="col s12 input-field">
-          <input type="tel" :form-field="location" id="location" maxlength="100" class="validate" :form-materialize />
-          <label for="location">Location</label>
-        </div>
-      </div>
-
-      <div class="white row">
-        <div class="col s12  gender">
-          <mitto-gender {control}="editProfileForm.getField('gender')" label="Gender"></mitto-gender>
-        </div>
-      </div>
-    </j-fragment>
+  <div class="border-top pt-3">
+    <fo-radio-button label="Gender" name="gender">
+      <radio-item value="0" iconClass="bi bi-gender-female" label="Female"></radio-item>
+      <radio-item value="1" iconClass="bi bi-gender-male" label="Male"></radio-item>
+    </fo-radio-button>
   </div>
 </div>
